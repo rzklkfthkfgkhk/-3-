@@ -1,5 +1,5 @@
 // ============================================================
-// APP.JS - ПОЛНАЯ ЛОГИКА САЙТА
+// APP.JS - ОНЛАЙН ПРОСМОТР
 // ============================================================
 
 (function() {
@@ -21,11 +21,11 @@
     const playerFrame = document.getElementById('playerFrame');
     const closePlayer = document.getElementById('closePlayer');
     const episodeSelect = document.getElementById('episodeSelect');
+    const qualitySelect = document.getElementById('qualitySelect');
     const statusMsg = document.getElementById('statusMsg');
     const sourceStatus = document.getElementById('sourceStatus');
     const reloadBtn = document.getElementById('reloadBtn');
     const nextSourceBtn = document.getElementById('nextSourceBtn');
-    const debugInfo = document.getElementById('debugInfo');
 
     const modalOverlay = document.getElementById('modalOverlay');
     const closeModal = document.getElementById('closeModal');
@@ -51,7 +51,6 @@
     let currentSourceIndex = 0;
     let currentSources = [];
     let isLoginMode = true;
-    let loadTimeout = null;
 
     // ===== AUTH =====
     let currentUser = JSON.parse(localStorage.getItem('animeUser') || 'null');
@@ -193,16 +192,17 @@
         }
     `;
 
-    // ===== SOURCES =====
-    function getPlayerSources(id, episode) {
+    // ===== ИСТОЧНИКИ ДЛЯ ОНЛАЙН ПРОСМОТРА =====
+    function getPlayerSources(id, episode, quality) {
+        const q = quality || '720';
         return [
-            `https://animeflix.live/embed/${id}?ep=${episode}`,
-            `https://gogoanime.llc/embed/${id}?ep=${episode}`,
-            `https://aniwatch.to/embed/${id}?ep=${episode}`,
-            `https://zoro.to/embed/${id}?ep=${episode}`,
-            `https://allanime.to/embed/${id}?ep=${episode}`,
-            `https://animepahe.com/embed/${id}?ep=${episode}`,
-            `https://9anime.to/embed/${id}?ep=${episode}`
+            `https://animeflix.live/embed/${id}?ep=${episode}&q=${q}`,
+            `https://gogoanime.llc/embed/${id}?ep=${episode}&q=${q}`,
+            `https://aniwatch.to/embed/${id}?ep=${episode}&q=${q}`,
+            `https://zoro.to/embed/${id}?ep=${episode}&q=${q}`,
+            `https://allanime.to/embed/${id}?ep=${episode}&q=${q}`,
+            `https://animepahe.com/embed/${id}?ep=${episode}&q=${q}`,
+            `https://9anime.to/embed/${id}?ep=${episode}&q=${q}`
         ];
     }
 
@@ -227,4 +227,4 @@
             const score = anime.averageScore ? Math.round(anime.averageScore / 10) : '—';
             const episodes = anime.episodes || '?';
             const status = anime.status || 'UNKNOWN';
-            const statusLabel = status === 'RELEASING' ? 'Выходит' : status === 'FINISHED' ? 'Завершён' : 'Ск
+            const statusLabel = status === 'RELEASING' ? '🟢 Выходи
