@@ -3,16 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimePlayer - Kodik</title>
+    <title>Kodik Player</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             background: #0d0d1a;
             color: #fff;
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .wrap { max-width: 1100px; margin: 0 auto; }
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
         .header {
             display: flex;
             gap: 20px;
@@ -42,7 +49,9 @@
             font-size: 16px;
             outline: none;
         }
-        .search input:focus { border-color: #7c3aed; }
+        .search input:focus {
+            border-color: #7c3aed;
+        }
         .search button {
             padding: 12px 24px;
             border-radius: 30px;
@@ -52,7 +61,9 @@
             font-size: 16px;
             cursor: pointer;
         }
-        .search button:hover { background: #6d28d9; }
+        .search button:hover {
+            background: #6d28d9;
+        }
         .stats {
             display: flex;
             gap: 30px;
@@ -62,7 +73,9 @@
             color: #888;
             font-size: 14px;
         }
-        .stats span:last-child { color: #fff; }
+        .stats span:last-child {
+            color: #fff;
+        }
         #grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -87,7 +100,9 @@
             object-fit: cover;
             display: block;
         }
-        .card-body { padding: 12px; }
+        .card-body {
+            padding: 12px;
+        }
         .card-body h3 {
             font-size: 14px;
             margin-bottom: 4px;
@@ -115,7 +130,10 @@
             padding: 60px 20px;
             color: #666;
         }
-        .empty h3 { font-size: 22px; margin-top: 10px; }
+        .empty h3 {
+            font-size: 22px;
+            margin-top: 10px;
+        }
         .loading {
             grid-column: 1 / -1;
             text-align: center;
@@ -130,7 +148,11 @@
             animation: spin 0.8s linear infinite;
             margin: 0 auto;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         #player {
             margin-top: 30px;
@@ -139,15 +161,22 @@
             padding: 20px;
             border: 1px solid #2a2a4a;
         }
-        #player.hidden { display: none; }
+        #player.hidden {
+            display: none;
+        }
         .player-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
-        .player-top h2 { font-size: 18px; }
-        .player-top .btns { display: flex; gap: 8px; }
+        .player-top h2 {
+            font-size: 18px;
+        }
+        .player-top .btns {
+            display: flex;
+            gap: 8px;
+        }
         .player-top .btns button {
             background: #2a2a4a;
             border: none;
@@ -159,8 +188,12 @@
             font-size: 16px;
             transition: 0.3s;
         }
-        .player-top .btns button:hover { background: #3a3a5a; }
-        .player-top .btns .close:hover { background: #dc2626; }
+        .player-top .btns button:hover {
+            background: #3a3a5a;
+        }
+        .player-top .btns .close:hover {
+            background: #dc2626;
+        }
         .player-controls {
             display: flex;
             gap: 15px;
@@ -241,17 +274,37 @@
             font-size: 12px;
             margin-left: 10px;
         }
+        .btn-reload {
+            background: #2a2a4a;
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .btn-reload:hover {
+            background: #3a3a5a;
+        }
         @media (max-width: 600px) {
-            .header { flex-direction: column; }
-            .search { max-width: 100%; }
-            #grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+            .header {
+                flex-direction: column;
+            }
+            .search {
+                max-width: 100%;
+            }
+            #grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="wrap">
         <div class="header">
-            <div class="logo" id="logoLink">🎬 AnimePlayer <span class="kodik-badge">Kodik</span></div>
+            <div class="logo" id="logoLink">🎬 Anime <span class="kodik-badge">Kodik</span></div>
             <div class="search">
                 <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
                 <button id="searchBtn">🔍 Найти</button>
@@ -259,9 +312,9 @@
         </div>
 
         <div class="stats">
-            <span>📊 AniList API</span>
-            <span>🎥 Kodik Плеер</span>
-            <span id="count">0 аниме</span>
+            <span>📊 AniList</span>
+            <span>🎥 Kodik</span>
+            <span id="count">0</span>
         </div>
 
         <div id="grid"></div>
@@ -276,7 +329,7 @@
             <div class="player-controls">
                 <select id="episodeSelect"></select>
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
-                <button class="source-btn" id="reloadBtn" style="background:#2a2a4a;border:none;color:#fff;padding:6px 16px;border-radius:20px;cursor:pointer;">🔄 Обновить</button>
+                <button class="btn-reload" id="reloadBtn">🔄 Обновить</button>
             </div>
             <div class="player-wrap">
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
@@ -284,19 +337,19 @@
             <div id="statusMsg" class="msg info">💡 Выберите аниме</div>
         </div>
 
-        <div class="footer">Данные AniList · Плеер Kodik</div>
+        <div class="footer">AniList · Kodik</div>
     </div>
 
     <script>
         // ============================================================
-        // ТОЛЬКО KODIK С ТОКЕНОМ
+        // ТОЛЬКО KODIK
         // ============================================================
 
         (function() {
             'use strict';
 
-            // ===== ТОКЕН KODIK =====
-            const KODIK_TOKEN = '83d3509b456cfd7448e89f81da83eb1a';
+            // ===== ТОКЕН =====
+            const TOKEN = '83d3509b456cfd7448e89f81da83eb1a';
 
             // DOM
             const searchInput = document.getElementById('searchInput');
@@ -304,7 +357,7 @@
             const grid = document.getElementById('grid');
             const count = document.getElementById('count');
             const logo = document.getElementById('logoLink');
-            
+
             const player = document.getElementById('player');
             const playerTitle = document.getElementById('playerTitle');
             const playerFrame = document.getElementById('playerFrame');
@@ -317,7 +370,6 @@
             let currentResults = [];
             let currentAnime = null;
             let isLoading = false;
-            let loadTimeout = null;
 
             // ===== ЗАПРОС К ANILIST =====
             const QUERY = `
@@ -337,16 +389,10 @@
                 }
             `;
 
-            // ===== ТОЛЬКО KODIK С ТОКЕНОМ =====
-            function getKodikUrl(id, episode) {
-                // Прямой запрос к Kodik API с токеном
-                return `https://kodikapi.com/get-player?token=${KODIK_TOKEN}&hash=${id}&episode=${episode}`;
-            }
-
             // ===== ПОИСК =====
             async function search(query) {
                 if (!query?.trim()) {
-                    showEmpty('Введите название аниме');
+                    showEmpty('Введите название');
                     updateCount(0);
                     return;
                 }
@@ -371,14 +417,14 @@
 
                     const json = await res.json();
                     if (json.errors) {
-                        throw new Error(json.errors[0]?.message || 'Ошибка GraphQL');
+                        throw new Error(json.errors[0]?.message || 'Ошибка');
                     }
 
                     const media = json?.data?.Page?.media || [];
                     currentResults = media;
 
                     if (!media.length) {
-                        showEmpty('Ничего не найдено 😢');
+                        showEmpty('Ничего не найдено');
                         updateCount(0);
                         return;
                     }
@@ -387,7 +433,7 @@
                     updateCount(media.length);
 
                 } catch (err) {
-                    console.error('Ошибка:', err);
+                    console.error(err);
                     showEmpty(`❌ ${err.message}`);
                     updateCount('⚠️');
                 } finally {
@@ -395,7 +441,7 @@
                 }
             }
 
-            // ===== ОТРИСОВКА КАРТОЧЕК =====
+            // ===== КАРТОЧКИ =====
             function renderCards(list) {
                 let html = '';
                 for (const anime of list) {
@@ -439,11 +485,10 @@
             function openPlayer(anime) {
                 currentAnime = anime;
                 const title = anime.title?.romaji || anime.title?.english || 'Аниме';
-                
+
                 player.classList.remove('hidden');
                 playerTitle.textContent = '🎬 ' + title;
-                
-                // Настраиваем серии
+
                 const total = anime.episodes || 12;
                 episodeSelect.innerHTML = '';
                 for (let i = 1; i <= Math.min(total, 50); i++) {
@@ -452,54 +497,32 @@
                     opt.textContent = `Серия ${i}`;
                     episodeSelect.appendChild(opt);
                 }
-                
-                // Загружаем первую серию через Kodik
+
                 const ep = parseInt(episodeSelect.value) || 1;
                 loadKodik(anime.id, ep);
-                
+
                 setTimeout(() => {
                     player.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
 
-            // ===== ЗАГРУЗКА ЧЕРЕЗ KODIK =====
+            // ===== ЗАГРУЗКА KODIK =====
             function loadKodik(id, episode) {
-                if (loadTimeout) {
-                    clearTimeout(loadTimeout);
-                    loadTimeout = null;
-                }
+                // ПРЯМАЯ ССЫЛКА НА ПЛЕЕР KODIK
+                const url = `https://kodikapi.com/get-player?token=${TOKEN}&hash=${id}&episode=${episode}`;
 
-                const url = getKodikUrl(id, episode);
-                
                 sourceStatus.textContent = `🎬 Kodik (серия ${episode})`;
-                setStatus(`⏳ Загрузка через Kodik...`, 'info');
-                
-                // Пробуем загрузить
+                setStatus(`⏳ Загрузка...`, 'info');
+
                 playerFrame.src = url;
 
-                // Таймаут 15 секунд
-                loadTimeout = setTimeout(() => {
-                    setStatus('❌ Kodik не отвечает. Попробуйте обновить.', 'error');
-                    sourceStatus.textContent = '❌ Таймаут';
-                }, 15000);
-
-                // Успешная загрузка
                 playerFrame.onload = function() {
-                    if (loadTimeout) {
-                        clearTimeout(loadTimeout);
-                        loadTimeout = null;
-                    }
-                    setStatus(`✅ Видео загружено через Kodik!`, 'success');
+                    setStatus(`✅ Загружено!`, 'success');
                     sourceStatus.textContent = '✅ Kodik работает';
                 };
 
-                // Ошибка загрузки
                 playerFrame.onerror = function() {
-                    if (loadTimeout) {
-                        clearTimeout(loadTimeout);
-                        loadTimeout = null;
-                    }
-                    setStatus('❌ Ошибка загрузки Kodik', 'error');
+                    setStatus('❌ Ошибка загрузки', 'error');
                     sourceStatus.textContent = '❌ Ошибка';
                 };
             }
@@ -526,12 +549,8 @@
                 statusMsg.className = 'msg ' + (type || 'info');
             }
 
-            // ===== ЗАКРЫТЬ ПЛЕЕР =====
+            // ===== ЗАКРЫТЬ =====
             function closePlayerFn() {
-                if (loadTimeout) {
-                    clearTimeout(loadTimeout);
-                    loadTimeout = null;
-                }
                 player.classList.add('hidden');
                 playerFrame.src = '';
                 currentAnime = null;
@@ -540,18 +559,18 @@
             // ===== НА ГЛАВНУЮ =====
             function goHome() {
                 closePlayerFn();
-                showEmpty('Найдите любимое аниме');
+                showEmpty('Найдите аниме');
                 updateCount(0);
                 document.querySelector('.header').scrollIntoView({ behavior: 'smooth' });
             }
 
-            // ===== UI ПОМОЩНИКИ =====
+            // ===== UI =====
             function showEmpty(msg) {
                 grid.innerHTML = `
                     <div class="empty">
                         <div style="font-size:48px;">🔍</div>
                         <h3>${msg}</h3>
-                        <p style="color:#555;">Введите название в поиск</p>
+                        <p style="color:#555;">Введите название</p>
                     </div>
                 `;
             }
@@ -560,7 +579,7 @@
                 grid.innerHTML = `
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p style="color:#888;margin-top:12px;">Загрузка аниме...</p>
+                        <p style="color:#888;margin-top:12px;">Загрузка...</p>
                     </div>
                 `;
             }
@@ -604,7 +623,7 @@
             });
 
             // ===== ЗАПУСК =====
-            showEmpty('Найдите любимое аниме');
+            showEmpty('Найдите аниме');
             updateCount(0);
 
             setTimeout(() => {
