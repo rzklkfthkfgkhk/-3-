@@ -1,8 +1,3 @@
-/* ============================================================
-   STAS ANIME - СТИЛИ
-   ============================================================ */
-
-/* ----- ОБЩИЕ ----- */
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +7,7 @@
 body {
     background: #0a0a1a;
     color: #e8e8f0;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: Arial, sans-serif;
     min-height: 100vh;
 }
 
@@ -22,7 +17,7 @@ body {
     padding: 16px 20px 30px;
 }
 
-/* ----- ШАПКА ----- */
+/* ===== ШАПКА ===== */
 .header {
     display: flex;
     gap: 12px;
@@ -37,12 +32,6 @@ body {
     font-weight: 900;
     cursor: pointer;
     color: #7c3aed;
-    user-select: none;
-    transition: opacity 0.2s;
-}
-
-.logo:hover {
-    opacity: 0.8;
 }
 
 .header-right {
@@ -52,7 +41,7 @@ body {
     flex-wrap: wrap;
 }
 
-/* ----- ПОИСК ----- */
+/* ===== ПОИСК ===== */
 .search {
     display: flex;
     gap: 4px;
@@ -60,12 +49,10 @@ body {
     border-radius: 30px;
     border: 2px solid #2a2a4a;
     padding: 2px 2px 2px 16px;
-    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .search:focus-within {
     border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
 .search input {
@@ -76,15 +63,10 @@ body {
     padding: 8px 0;
     outline: none;
     width: 160px;
-    transition: width 0.3s;
 }
 
 .search input:focus {
     width: 200px;
-}
-
-.search input::placeholder {
-    color: #555;
 }
 
 .search button {
@@ -95,15 +77,13 @@ body {
     height: 36px;
     border-radius: 50%;
     cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
 }
 
 .search button:hover {
     background: #6d28d9;
-    transform: scale(1.05);
 }
 
-/* ----- КНОПКИ АВТОРИЗАЦИИ ----- */
+/* ===== АВТОРИЗАЦИЯ ===== */
 .auth-btns {
     display: flex;
     gap: 6px;
@@ -118,7 +98,6 @@ body {
     background: transparent;
     color: #888;
     border: 1px solid #2a2a4a !important;
-    transition: all 0.3s;
 }
 
 .auth-btns button:hover {
@@ -158,10 +137,9 @@ body {
 
 .user-name {
     color: #7c3aed;
-    font-weight: 500;
 }
 
-/* ----- НАВИГАЦИЯ ----- */
+/* ===== НАВИГАЦИЯ ===== */
 .nav {
     display: flex;
     gap: 4px;
@@ -179,7 +157,6 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
-    transition: all 0.3s;
 }
 
 .nav button:hover {
@@ -202,7 +179,7 @@ body {
     margin-left: 2px;
 }
 
-/* ----- СТАТИСТИКА ----- */
+/* ===== СТАТИСТИКА ===== */
 .stats {
     display: flex;
     gap: 20px;
@@ -217,7 +194,7 @@ body {
     color: #e8e8f0;
 }
 
-/* ----- СЕТКА КАРТОЧЕК ----- */
+/* ===== СЕТКА ===== */
 #grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -226,21 +203,20 @@ body {
     margin-top: 10px;
 }
 
-/* ----- КАРТОЧКА АНИМЕ ----- */
+/* ===== КАРТОЧКА ===== */
 .card {
     background: #14142a;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
     border: 1px solid #1a1a36;
-    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    transition: 0.3s;
     position: relative;
 }
 
 .card:hover {
     transform: translateY(-4px);
     border-color: #7c3aed;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
 }
 
 .card img {
@@ -248,7 +224,6 @@ body {
     aspect-ratio: 2/3;
     object-fit: cover;
     display: block;
-    background: #0a0a1a;
 }
 
 .card-body {
@@ -263,7 +238,6 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.3;
 }
 
 .card-body .genres {
@@ -321,7 +295,7 @@ body {
     background: #555;
 }
 
-/* ----- КНОПКИ НА КАРТОЧКЕ (избранное/просмотрено) ----- */
+/* ===== КНОПКИ НА КАРТОЧКЕ ===== */
 .card-actions {
     position: absolute;
     top: 6px;
@@ -342,7 +316,6 @@ body {
     cursor: pointer;
     font-size: 12px;
     backdrop-filter: blur(4px);
-    transition: transform 0.2s, color 0.2s;
 }
 
 .card-actions button:hover {
@@ -357,7 +330,7 @@ body {
     color: #60a5fa;
 }
 
-/* ----- ПУСТОЕ СОСТОЯНИЕ ----- */
+/* ===== ПУСТО ===== */
 .empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -376,8 +349,7 @@ body {
     font-size: 18px;
 }
 
-.empty button,
-.empty .btn {
+.empty button {
     margin-top: 12px;
     padding: 8px 20px;
     border-radius: 20px;
@@ -385,15 +357,13 @@ body {
     background: #7c3aed;
     color: #fff;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
-.empty button:hover,
-.empty .btn:hover {
+.empty button:hover {
     background: #6d28d9;
 }
 
-/* ----- ЗАГРУЗКА ----- */
+/* ===== ЗАГРУЗКА ===== */
 .loading {
     grid-column: 1 / -1;
     text-align: center;
@@ -421,29 +391,17 @@ body {
     margin-top: 10px;
 }
 
-/* ----- ПЛЕЕР ----- */
+/* ===== ПЛЕЕР ===== */
 #player {
     margin-top: 20px;
     background: #14142a;
     border-radius: 16px;
     padding: 16px;
     border: 1px solid #1a1a36;
-    animation: slideUp 0.3s ease;
 }
 
 #player.hidden {
     display: none;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .player-header {
@@ -467,7 +425,6 @@ body {
     border-radius: 50%;
     cursor: pointer;
     font-size: 18px;
-    transition: background 0.3s, color 0.3s;
 }
 
 .player-header button:hover {
@@ -494,11 +451,6 @@ body {
     border-radius: 8px;
     font-size: 13px;
     cursor: pointer;
-    outline: none;
-}
-
-.player-controls select:focus {
-    border: 1px solid #7c3aed;
 }
 
 .player-controls .status {
@@ -515,7 +467,6 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 12px;
-    transition: background 0.3s, color 0.3s;
 }
 
 .player-controls button:hover {
@@ -571,7 +522,7 @@ body {
     color: #f87171;
 }
 
-/* ----- МОДАЛЬНЫЕ ОКНА ----- */
+/* ===== МОДАЛКИ ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -594,24 +545,12 @@ body {
     background: #14142a;
     border-radius: 20px;
     padding: 28px 32px;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
     border: 1px solid #2a2a4a;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
-    animation: modalIn 0.3s ease;
-}
-
-@keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
 }
 
 .modal .close-modal {
@@ -623,7 +562,6 @@ body {
     color: #666;
     font-size: 20px;
     cursor: pointer;
-    transition: color 0.3s;
 }
 
 .modal .close-modal:hover {
@@ -646,7 +584,6 @@ body {
     font-size: 14px;
     margin-bottom: 10px;
     outline: none;
-    transition: border-color 0.3s;
 }
 
 .modal input:focus {
@@ -663,7 +600,6 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
 .modal button:hover {
@@ -676,15 +612,18 @@ body {
     color: #666;
     font-size: 13px;
     cursor: pointer;
-    transition: color 0.3s;
 }
 
 .modal .switch:hover {
     color: #7c3aed;
 }
 
-/* ----- ПРОФИЛЬ ----- */
-.profile-modal .profile-info {
+/* ===== СТРАНИЦА ПРОФИЛЯ ===== */
+.profile-page {
+    max-width: 550px;
+}
+
+.profile-page .profile-info {
     background: #0a0a1a;
     border-radius: 12px;
     padding: 12px 16px;
@@ -692,61 +631,85 @@ body {
     border: 1px solid #1a1a36;
 }
 
-.profile-modal .profile-info p {
+.profile-page .profile-info p {
     margin: 3px 0;
     font-size: 14px;
     color: #888;
 }
 
-.profile-modal .profile-info p span {
+.profile-page .profile-info p span {
     color: #e8e8f0;
     font-weight: 600;
 }
 
-.profile-modal .profile-list {
-    max-height: 120px;
+.profile-page .profile-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.profile-page .profile-tabs button {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #1a1a36;
+    color: #888;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.profile-page .profile-tabs button:hover {
+    background: #2a2a4a;
+    color: #fff;
+}
+
+.profile-page .profile-tabs button.active {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.profile-page .profile-list {
+    max-height: 300px;
     overflow-y: auto;
     background: #0a0a1a;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #1a1a36;
-    margin-bottom: 10px;
 }
 
-.profile-modal .profile-list .list-item {
+.profile-page .profile-list .list-item {
     display: flex;
     justify-content: space-between;
-    padding: 3px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #1a1a36;
-    font-size: 13px;
+    font-size: 14px;
     color: #888;
 }
 
-.profile-modal .profile-list .list-item:last-child {
+.profile-page .profile-list .list-item:last-child {
     border-bottom: none;
 }
 
-.profile-modal .profile-list .list-item .title {
+.profile-page .profile-list .list-item .title {
     color: #e8e8f0;
     cursor: pointer;
-    transition: color 0.3s;
 }
 
-.profile-modal .profile-list .list-item .title:hover {
+.profile-page .profile-list .list-item .title:hover {
     color: #7c3aed;
 }
 
-.profile-modal .profile-list .list-item .remove {
+.profile-page .profile-list .list-item .remove {
     color: #dc2626;
     cursor: pointer;
-    transition: color 0.3s;
 }
 
-.profile-modal .profile-list .list-item .remove:hover {
+.profile-page .profile-list .list-item .remove:hover {
     color: #ef4444;
 }
 
-/* ----- ТОСТ (УВЕДОМЛЕНИЕ) ----- */
+/* ===== ТОСТ ===== */
 .toast {
     position: fixed;
     bottom: 30px;
@@ -761,26 +724,13 @@ body {
     z-index: 2000;
     display: none;
     max-width: 90%;
-    animation: toastIn 0.3s ease;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
 .toast.show {
     display: block;
 }
 
-@keyframes toastIn {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
-/* ----- ПОДВАЛ ----- */
+/* ===== ПОДВАЛ ===== */
 .footer {
     margin-top: 24px;
     padding-top: 14px;
@@ -790,89 +740,48 @@ body {
     font-size: 12px;
 }
 
-/* ----- АДАПТИВНОСТЬ ----- */
+/* ===== АДАПТИВ ===== */
 @media (max-width: 768px) {
     .header {
         flex-direction: column;
         align-items: stretch;
     }
-
     .header-right {
         flex-direction: column;
         align-items: stretch;
     }
-
     .search input {
         width: 100%;
     }
-
     .search input:focus {
         width: 100%;
     }
-
     #grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 14px;
     }
-
     .nav button {
         font-size: 12px;
         padding: 5px 12px;
     }
-
     .modal {
         padding: 24px 20px;
     }
 }
 
 @media (max-width: 480px) {
-    .wrap {
-        padding: 12px 14px 20px;
-    }
-
     #grid {
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         gap: 10px;
     }
-
     .card-body h3 {
         font-size: 13px;
     }
-
-    .card-body .meta {
-        font-size: 10px;
-    }
-
-    .card-body .meta span {
-        padding: 1px 6px;
-    }
-
     .logo {
         font-size: 22px;
         text-align: center;
     }
-
-    .stats {
-        font-size: 12px;
-        gap: 12px;
-    }
-
     .player-header h3 {
         font-size: 15px;
-    }
-
-    .player-controls {
-        gap: 4px;
-        padding: 4px 8px;
-    }
-
-    .player-controls select {
-        font-size: 12px;
-        padding: 3px 8px;
-    }
-
-    .player-controls button {
-        font-size: 11px;
-        padding: 3px 8px;
     }
 }
