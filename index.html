@@ -50,7 +50,7 @@
         <!-- GRID -->
         <div id="grid"></div>
 
-        <!-- PLAYER -->
+        <!-- ПЛЕЕР ДЛЯ ОНЛАЙН ПРОСМОТРА -->
         <div id="player" class="hidden">
             <div class="player-top">
                 <h2 id="playerTitle"><i class="fas fa-play-circle" style="color:#7c3aed;"></i> Название</h2>
@@ -60,6 +60,12 @@
             </div>
             <div class="player-controls">
                 <select id="episodeSelect"></select>
+                <select id="qualitySelect">
+                    <option value="1080">1080p</option>
+                    <option value="720" selected>720p</option>
+                    <option value="480">480p</option>
+                    <option value="360">360p</option>
+                </select>
                 <span class="status" id="sourceStatus"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
                 <button id="nextSourceBtn"><i class="fas fa-forward"></i> Следующий</button>
                 <button id="reloadBtn"><i class="fas fa-sync-alt"></i></button>
@@ -68,7 +74,6 @@
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
             </div>
             <div id="statusMsg" class="msg info"><i class="fas fa-info-circle"></i> Выберите аниме</div>
-            <div id="debugInfo"></div>
         </div>
 
         <footer class="footer">
