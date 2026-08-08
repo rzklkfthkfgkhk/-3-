@@ -1,5 +1,5 @@
 // ============================================================
-// APP.JS - С KODIKWRAPPER
+// APP.JS - С KODIKWRAPPER (ПРАВИЛЬНАЯ ВЕРСИЯ)
 // ============================================================
 
 // Импортируем kodikwrapper
@@ -9,9 +9,6 @@ const { Client } = require('kodikwrapper');
 const client = new Client({
     token: '83d3509b456cfd7448e89f81da83eb1a',
 });
-
-// ИЛИ короче:
-// const client = Client.fromToken('83d3509b456cfd7448e89f81da83eb1a');
 
 (function() {
     'use strict';
@@ -31,6 +28,7 @@ const client = new Client({
     const statusMsg = document.getElementById('statusMsg');
     const sourceStatus = document.getElementById('sourceStatus');
     const reloadBtn = document.getElementById('reloadBtn');
+    const debugInfo = document.getElementById('debugInfo');
 
     let currentResults = [];
     let currentAnime = null;
@@ -43,6 +41,7 @@ const client = new Client({
             Page(page: 1, perPage: 30) {
                 media(search: $search, type: ANIME, sort: POPULARITY_DESC) {
                     id
+                    idMal
                     title { romaji english native }
                     coverImage { large extraLarge }
                     format
@@ -55,47 +54,73 @@ const client = new Client({
         }
     `;
 
-    // ===== ПОИСК В KODIK ПО НАЗВАНИЮ =====
-    async function searchKodik(title) {
+    // ===== ПОИСК В KODIK ПО ID (shikimori_id) =====
+    async function searchKodikById(anilistId) {
         try {
-            const response = await client.search({
-                limit: 1,
-                title: title,
+            // AniList ID часто совпадает с Shikimori ID
+            const response = await client.search({ 
+                shikimori_id: String(anilistId) 
             });
             
+            debugInfo.textContent = `Поиск по ID ${anilistId}: ${JSON.stringify(response, null, 2)}`;
+            debugInfo.classList.add('show');
+
             if (response && response.results && response.results.length > 0) {
                 return response.results[0];
             }
             return null;
         } catch (error) {
-            console.error('Kodik search error:', error);
+            console.error('Kodik search by ID error:', error);
+            debugInfo.textContent += `\nОшибка: ${error.message}`;
             return null;
         }
     }
 
-    // ===== ПОЛУЧИТЬ ССЫЛКУ НА ПЛЕЕР ИЗ KODIK =====
+    // ===== ПОИСК В KODIK ПО НАЗВАНИЮ =====
+    async function searchKodikByTitle(title) {
+        try {
+            const response = await client.search({ 
+                title: title,
+                limit: 1
+            });
+            
+            debugInfo.textContent = `Поиск по названию "${title}": ${JSON.stringify(response, null, 2)}`;
+            debugInfo.classList.add('show');
+
+            if (response && response.results && response.results.length > 0) {
+                return response.results[0];
+            }
+            return null;
+        } catch (error) {
+            console.error('Kodik search by title error:', error);
+            debugInfo.textContent += `\nОшибка: ${error.message}`;
+            return null;
+        }
+    }
+
+    // ===== ПОЛУЧИТЬ ССЫЛКУ НА ПЛЕЕР ИЗ MATERIAL =====
     function getKodikPlayerUrl(material, episode) {
         if (!material) return null;
-        
-        // У Kodik есть поле link или можно сформировать ссылку
-        // Обычно ссылка выглядит так: //aniqit.com/video/ID/HASH/QUALITY
-        // Или можно использовать прямой плеер Kodik
-        
-        // Вариант 1: Использовать link из ответа
+
+        // Вариант 1:直接用 link из ответа
         if (material.link) {
-            // Добавляем протокол https:// если его нет
             let url = material.link;
             if (url.startsWith('//')) {
                 url = 'https:' + url;
             }
             return url;
         }
-        
-        // Вариант 2: Сформировать ссылку на плеер
+
+        // Вариант 2: Сформировать ссылку по id
         if (material.id) {
             return `https://kodik.info/player/${material.id}/${episode}`;
         }
-        
+
+        // Вариант 3: По hash
+        if (material.hash) {
+            return `https://kodik.info/player/${material.hash}/${episode}`;
+        }
+
         return null;
     }
 
@@ -211,27 +236,58 @@ const client = new Client({
             episodeSelect.appendChild(opt);
         }
 
-        // Ищем в Kodik по названию
-        setStatus(`⏳ Поиск в Kodik: "${animeTitle}"...`, 'info');
-        sourceStatus.textContent = `🔍 Поиск Kodik...`;
+        setStatus(`⏳ Поиск в Kodik...`, 'info');
+        sourceStatus.textContent = `🔍 Поиск...`;
+        debugInfo.textContent = `ID: ${anime.id}, Название: ${animeTitle}`;
+        debugInfo.classList.add('show');
 
         try {
-            const kodikMaterial = await searchKodik(animeTitle);
+            // Пробуем поиск по ID (shikimori_id)
+            let material = await searchKodikById(anime.id);
             
-            if (kodikMaterial) {
-                currentKodikMaterial = kodikMaterial;
-                console.log('Найдено в Kodik:', kodikMaterial);
-                
-                const ep = parseInt(episodeSelect.value) || 1;
-                await loadKodikPlayer(kodikMaterial, ep);
-            } else {
-                setStatus(`❌ Не найдено в Kodik: "${animeTitle}"`, 'error');
-                sourceStatus.textContent = '❌ Не найдено';
+            // Если не найдено по ID - ищем по названию
+            if (!material) {
+                debugInfo.textContent += `\nПо ID не найдено, ищем по названию...`;
+                material = await searchKodikByTitle(animeTitle);
             }
+
+            if (material) {
+                currentKodikMaterial = material;
+                debugInfo.textContent += `\nНайдено: ${material.title || material.id}`;
+                setStatus(`✅ Найдено в Kodik!`, 'success');
+                sourceStatus.textContent = `🎬 Загрузка...`;
+
+                const ep = parseInt(episodeSelect.value) || 1;
+                const playerUrl = getKodikPlayerUrl(material, ep);
+
+                if (playerUrl) {
+                    debugInfo.textContent += `\nПлеер: ${playerUrl}`;
+                    playerFrame.src = playerUrl;
+
+                    playerFrame.onload = function() {
+                        setStatus(`✅ Видео загружено!`, 'success');
+                        sourceStatus.textContent = '✅ Kodik работает';
+                    };
+
+                    playerFrame.onerror = function() {
+                        setStatus('❌ Ошибка плеера', 'error');
+                        sourceStatus.textContent = '❌ Ошибка';
+                    };
+                } else {
+                    setStatus('❌ Не удалось получить ссылку', 'error');
+                    sourceStatus.textContent = '❌ Нет ссылки';
+                }
+            } else {
+                setStatus(`❌ Не найдено в Kodik`, 'error');
+                sourceStatus.textContent = '❌ Не найдено';
+                debugInfo.textContent += `\nНичего не найдено в Kodik`;
+            }
+
         } catch (error) {
-            console.error('Kodik error:', error);
-            setStatus(`❌ Ошибка Kodik: ${error.message}`, 'error');
+            console.error('Open player error:', error);
+            setStatus(`❌ Ошибка: ${error.message}`, 'error');
             sourceStatus.textContent = '❌ Ошибка';
+            debugInfo.textContent += `\nОшибка: ${error.message}`;
         }
 
         setTimeout(() => {
@@ -239,46 +295,16 @@ const client = new Client({
         }, 100);
     }
 
-    // ===== ЗАГРУЗКА ПЛЕЕРА KODIK =====
-    async function loadKodikPlayer(material, episode) {
-        try {
-            const playerUrl = getKodikPlayerUrl(material, episode);
-            
-            if (!playerUrl) {
-                setStatus('❌ Не удалось получить ссылку на плеер', 'error');
-                sourceStatus.textContent = '❌ Нет ссылки';
-                return;
-            }
-
-            console.log('Kodik плеер URL:', playerUrl);
-            
-            setStatus(`✅ Загрузка плеера Kodik...`, 'info');
-            sourceStatus.textContent = `🎬 Kodik (серия ${episode})`;
-
-            playerFrame.src = playerUrl;
-
-            playerFrame.onload = function() {
-                setStatus(`✅ Видео загружено через Kodik!`, 'success');
-                sourceStatus.textContent = '✅ Kodik работает';
-            };
-
-            playerFrame.onerror = function() {
-                setStatus('❌ Ошибка загрузки плеера', 'error');
-                sourceStatus.textContent = '❌ Ошибка';
-            };
-
-        } catch (error) {
-            console.error('Load Kodik error:', error);
-            setStatus(`❌ Ошибка: ${error.message}`, 'error');
-            sourceStatus.textContent = '❌ Ошибка';
-        }
-    }
-
     // ===== СМЕНА СЕРИИ =====
     async function changeEpisode() {
         if (currentAnime && currentKodikMaterial) {
             const ep = parseInt(episodeSelect.value) || 1;
-            await loadKodikPlayer(currentKodikMaterial, ep);
+            const playerUrl = getKodikPlayerUrl(currentKodikMaterial, ep);
+            if (playerUrl) {
+                playerFrame.src = playerUrl;
+                setStatus(`✅ Серия ${ep} загружена`, 'success');
+                sourceStatus.textContent = `🎬 Серия ${ep}`;
+            }
         }
     }
 
@@ -286,7 +312,15 @@ const client = new Client({
     async function reloadPlayer() {
         if (currentAnime && currentKodikMaterial) {
             const ep = parseInt(episodeSelect.value) || 1;
-            await loadKodikPlayer(currentKodikMaterial, ep);
+            const playerUrl = getKodikPlayerUrl(currentKodikMaterial, ep);
+            if (playerUrl) {
+                playerFrame.src = playerUrl;
+                setStatus(`✅ Перезагружено`, 'success');
+                sourceStatus.textContent = '🔄 Обновлено';
+            }
+        } else if (currentAnime) {
+            const title = currentAnime.title?.romaji || currentAnime.title?.english || 'Аниме';
+            await openPlayer(currentAnime, title);
         }
     }
 
@@ -302,6 +336,7 @@ const client = new Client({
         playerFrame.src = '';
         currentAnime = null;
         currentKodikMaterial = null;
+        debugInfo.classList.remove('show');
     }
 
     // ===== НА ГЛАВНУЮ =====
