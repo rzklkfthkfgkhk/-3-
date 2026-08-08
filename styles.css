@@ -1,3 +1,8 @@
+/* ============================================================
+   STAS ANIME - СТИЛИ
+   ============================================================ */
+
+/* ----- ОБЩИЕ ----- */
 * {
     margin: 0;
     padding: 0;
@@ -7,7 +12,7 @@
 body {
     background: #0a0a1a;
     color: #e8e8f0;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     min-height: 100vh;
 }
 
@@ -17,7 +22,7 @@ body {
     padding: 16px 20px 30px;
 }
 
-/* ===== HEADER ===== */
+/* ----- ШАПКА ----- */
 .header {
     display: flex;
     gap: 12px;
@@ -32,6 +37,12 @@ body {
     font-weight: 900;
     cursor: pointer;
     color: #7c3aed;
+    user-select: none;
+    transition: opacity 0.2s;
+}
+
+.logo:hover {
+    opacity: 0.8;
 }
 
 .header-right {
@@ -41,6 +52,7 @@ body {
     flex-wrap: wrap;
 }
 
+/* ----- ПОИСК ----- */
 .search {
     display: flex;
     gap: 4px;
@@ -48,6 +60,12 @@ body {
     border-radius: 30px;
     border: 2px solid #2a2a4a;
     padding: 2px 2px 2px 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search:focus-within {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
 .search input {
@@ -58,10 +76,15 @@ body {
     padding: 8px 0;
     outline: none;
     width: 160px;
+    transition: width 0.3s;
 }
 
 .search input:focus {
     width: 200px;
+}
+
+.search input::placeholder {
+    color: #555;
 }
 
 .search button {
@@ -72,8 +95,15 @@ body {
     height: 36px;
     border-radius: 50%;
     cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
 }
 
+.search button:hover {
+    background: #6d28d9;
+    transform: scale(1.05);
+}
+
+/* ----- КНОПКИ АВТОРИЗАЦИИ ----- */
 .auth-btns {
     display: flex;
     gap: 6px;
@@ -88,6 +118,7 @@ body {
     background: transparent;
     color: #888;
     border: 1px solid #2a2a4a !important;
+    transition: all 0.3s;
 }
 
 .auth-btns button:hover {
@@ -125,7 +156,12 @@ body {
     background: #3a3a5a;
 }
 
-/* ===== NAV ===== */
+.user-name {
+    color: #7c3aed;
+    font-weight: 500;
+}
+
+/* ----- НАВИГАЦИЯ ----- */
 .nav {
     display: flex;
     gap: 4px;
@@ -143,7 +179,7 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 13px;
-    transition: 0.3s;
+    transition: all 0.3s;
 }
 
 .nav button:hover {
@@ -166,7 +202,7 @@ body {
     margin-left: 2px;
 }
 
-/* ===== STATS ===== */
+/* ----- СТАТИСТИКА ----- */
 .stats {
     display: flex;
     gap: 20px;
@@ -181,7 +217,7 @@ body {
     color: #e8e8f0;
 }
 
-/* ===== GRID ===== */
+/* ----- СЕТКА КАРТОЧЕК ----- */
 #grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -190,20 +226,21 @@ body {
     margin-top: 10px;
 }
 
-/* ===== CARD ===== */
+/* ----- КАРТОЧКА АНИМЕ ----- */
 .card {
     background: #14142a;
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
     border: 1px solid #1a1a36;
-    transition: 0.3s;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
     position: relative;
 }
 
 .card:hover {
     transform: translateY(-4px);
     border-color: #7c3aed;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
 }
 
 .card img {
@@ -211,6 +248,7 @@ body {
     aspect-ratio: 2/3;
     object-fit: cover;
     display: block;
+    background: #0a0a1a;
 }
 
 .card-body {
@@ -225,6 +263,16 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-height: 1.3;
+}
+
+.card-body .genres {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-body .meta {
@@ -273,6 +321,7 @@ body {
     background: #555;
 }
 
+/* ----- КНОПКИ НА КАРТОЧКЕ (избранное/просмотрено) ----- */
 .card-actions {
     position: absolute;
     top: 6px;
@@ -293,6 +342,7 @@ body {
     cursor: pointer;
     font-size: 12px;
     backdrop-filter: blur(4px);
+    transition: transform 0.2s, color 0.2s;
 }
 
 .card-actions button:hover {
@@ -302,10 +352,12 @@ body {
 .card-actions .fav-btn.active {
     color: #ef4444;
 }
+
 .card-actions .watched-btn.active {
     color: #60a5fa;
 }
 
+/* ----- ПУСТОЕ СОСТОЯНИЕ ----- */
 .empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -324,6 +376,24 @@ body {
     font-size: 18px;
 }
 
+.empty button,
+.empty .btn {
+    margin-top: 12px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: none;
+    background: #7c3aed;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.empty button:hover,
+.empty .btn:hover {
+    background: #6d28d9;
+}
+
+/* ----- ЗАГРУЗКА ----- */
 .loading {
     grid-column: 1 / -1;
     text-align: center;
@@ -351,7 +421,7 @@ body {
     margin-top: 10px;
 }
 
-/* ===== PLAYER ===== */
+/* ----- ПЛЕЕР ----- */
 #player {
     margin-top: 20px;
     background: #14142a;
@@ -397,7 +467,7 @@ body {
     border-radius: 50%;
     cursor: pointer;
     font-size: 18px;
-    transition: 0.3s;
+    transition: background 0.3s, color 0.3s;
 }
 
 .player-header button:hover {
@@ -405,7 +475,7 @@ body {
     color: #fff;
 }
 
-.player-controls-top {
+.player-controls {
     display: flex;
     gap: 8px;
     margin-bottom: 10px;
@@ -416,7 +486,7 @@ body {
     align-items: center;
 }
 
-.player-controls-top select {
+.player-controls select {
     background: #1a1a36;
     color: #fff;
     border: none;
@@ -424,15 +494,20 @@ body {
     border-radius: 8px;
     font-size: 13px;
     cursor: pointer;
+    outline: none;
 }
 
-.player-controls-top .status {
+.player-controls select:focus {
+    border: 1px solid #7c3aed;
+}
+
+.player-controls .status {
     color: #7c3aed;
     font-size: 13px;
     flex: 1;
 }
 
-.player-controls-top button {
+.player-controls button {
     background: #1a1a36;
     border: none;
     color: #888;
@@ -440,44 +515,63 @@ body {
     border-radius: 20px;
     cursor: pointer;
     font-size: 12px;
-    transition: 0.3s;
+    transition: background 0.3s, color 0.3s;
 }
 
-.player-controls-top button:hover {
+.player-controls button:hover {
     background: #2a2a4a;
     color: #fff;
 }
 
-.player-controls-top .watch-btn.active {
+.player-controls .watch-btn.active {
     background: #60a5fa;
     color: #fff;
 }
 
-.player-container {
+.player-wrapper {
+    position: relative;
     width: 100%;
+    padding-top: 56.25%;
     background: #0a0a1a;
     border-radius: 12px;
     overflow: hidden;
 }
 
-.player-container video {
+.player-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    max-height: 500px;
-    display: block;
-    background: #000;
+    height: 100%;
+    border: 0;
 }
 
-.status-info {
+.player-status {
     padding: 8px 14px;
     border-radius: 10px;
     margin-top: 10px;
     font-size: 13px;
+}
+
+.player-status.info {
     background: rgba(59, 130, 246, 0.08);
     border: 1px solid rgba(59, 130, 246, 0.15);
     color: #60a5fa;
 }
 
-/* ===== MODAL ===== */
+.player-status.success {
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid rgba(52, 211, 153, 0.15);
+    color: #4ade80;
+}
+
+.player-status.error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* ----- МОДАЛЬНЫЕ ОКНА ----- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -506,6 +600,18 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
+    animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .modal .close-modal {
@@ -517,6 +623,7 @@ body {
     color: #666;
     font-size: 20px;
     cursor: pointer;
+    transition: color 0.3s;
 }
 
 .modal .close-modal:hover {
@@ -539,14 +646,14 @@ body {
     font-size: 14px;
     margin-bottom: 10px;
     outline: none;
+    transition: border-color 0.3s;
 }
 
 .modal input:focus {
     border-color: #7c3aed;
 }
 
-.modal button[type="submit"],
-.modal #modalSubmit {
+.modal button {
     width: 100%;
     padding: 10px;
     border-radius: 12px;
@@ -556,6 +663,7 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.3s;
 }
 
 .modal button:hover {
@@ -568,13 +676,14 @@ body {
     color: #666;
     font-size: 13px;
     cursor: pointer;
+    transition: color 0.3s;
 }
 
 .modal .switch:hover {
     color: #7c3aed;
 }
 
-/* ===== PROFILE ===== */
+/* ----- ПРОФИЛЬ ----- */
 .profile-modal .profile-info {
     background: #0a0a1a;
     border-radius: 12px;
@@ -620,6 +729,7 @@ body {
 .profile-modal .profile-list .list-item .title {
     color: #e8e8f0;
     cursor: pointer;
+    transition: color 0.3s;
 }
 
 .profile-modal .profile-list .list-item .title:hover {
@@ -629,9 +739,14 @@ body {
 .profile-modal .profile-list .list-item .remove {
     color: #dc2626;
     cursor: pointer;
+    transition: color 0.3s;
 }
 
-/* ===== TOAST ===== */
+.profile-modal .profile-list .list-item .remove:hover {
+    color: #ef4444;
+}
+
+/* ----- ТОСТ (УВЕДОМЛЕНИЕ) ----- */
 .toast {
     position: fixed;
     bottom: 30px;
@@ -646,13 +761,26 @@ body {
     z-index: 2000;
     display: none;
     max-width: 90%;
+    animation: toastIn 0.3s ease;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
 .toast.show {
     display: block;
 }
 
-/* ===== FOOTER ===== */
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ----- ПОДВАЛ ----- */
 .footer {
     margin-top: 24px;
     padding-top: 14px;
@@ -662,31 +790,89 @@ body {
     font-size: 12px;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 768px) {
     .header {
         flex-direction: column;
         align-items: stretch;
     }
+
     .header-right {
         flex-direction: column;
         align-items: stretch;
     }
+
     .search input {
         width: 100%;
     }
+
     .search input:focus {
         width: 100%;
     }
+
     #grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 14px;
+    }
+
+    .nav button {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
+
+    .modal {
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wrap {
+        padding: 12px 14px 20px;
+    }
+
+    #grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    .card-body h3 {
+        font-size: 13px;
+    }
+
+    .card-body .meta {
+        font-size: 10px;
+    }
+
+    .card-body .meta span {
+        padding: 1px 6px;
+    }
+
+    .logo {
+        font-size: 22px;
+        text-align: center;
+    }
+
+    .stats {
+        font-size: 12px;
         gap: 12px;
     }
-    .nav button {
-        font-size: 11px;
-        padding: 4px 10px;
+
+    .player-header h3 {
+        font-size: 15px;
     }
-    .player-container video {
-        max-height: 300px;
+
+    .player-controls {
+        gap: 4px;
+        padding: 4px 8px;
+    }
+
+    .player-controls select {
+        font-size: 12px;
+        padding: 3px 8px;
+    }
+
+    .player-controls button {
+        font-size: 11px;
+        padding: 3px 8px;
     }
 }
