@@ -3,58 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stas Anime - Простой плеер</title>
+    <title>Stas Anime - Смотреть аниме</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
 <div class="wrap">
+    <!-- ШАПКА -->
     <header class="header">
-        <div class="logo">🎬 StasAnime</div>
-        <div class="search">
-            <input type="text" id="searchInput" placeholder="Название аниме..." value="one piece">
-            <button id="searchBtn">🔍 Найти</button>
+        <div class="logo" id="logoLink">🎬 StasAnime</div>
+        <div class="header-right">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
+                <button id="searchBtn">🔍</button>
+            </div>
+            <div class="auth-btns" id="authBtns">
+                <button id="loginBtn">Вход</button>
+                <button id="registerBtn">Регистрация</button>
+            </div>
+            <div class="auth-btns" id="userInfo" style="display:none;">
+                <span id="userNameDisplay">👤 </span>
+                <button id="profileBtn">📋</button>
+                <button id="logoutBtn">🚪</button>
+            </div>
         </div>
     </header>
 
-    <div class="info">📺 Найди аниме и смотри онлайн</div>
+    <!-- НАВИГАЦИЯ -->
+    <nav class="nav" id="nav">
+        <button class="active" data-tab="ongoing">🔄 Онгоинги</button>
+        <button data-tab="top">🏆 Топ-100</button>
+        <button data-tab="favorites">❤️ Избранное <span class="badge" id="favCount">0</span></button>
+        <button data-tab="watched">👁️ Просмотренные <span class="badge" id="watchedCount">0</span></button>
+        <button data-tab="search" id="searchTab">🔍 Поиск</button>
+    </nav>
 
-    <!-- Результаты поиска -->
-    <div id="results"></div>
+    <!-- СТАТИСТИКА -->
+    <div class="stats">
+        <span id="currentTabLabel">📺 Онгоинги</span>
+        <span id="count">0 аниме</span>
+    </div>
 
-    <!-- Плеер -->
+    <!-- СЕТКА -->
+    <div id="grid"></div>
+
+    <!-- ПЛЕЕР -->
     <div id="player" class="hidden">
         <div class="player-header">
             <h3 id="playerTitle">🎬 Название</h3>
             <button id="closePlayer">✕</button>
         </div>
-
+        <div class="player-controls-top">
+            <select id="episodeSelect">
+                <option value="1">Серия 1</option>
+            </select>
+            <span id="sourceStatus">⏳ Загрузка...</span>
+            <button id="nextSourceBtn">▶ Следующий</button>
+            <button id="reloadBtn">🔄</button>
+            <button id="watchBtn">👁️ Просмотрено</button>
+        </div>
         <div class="player-container">
             <video id="videoPlayer" controls>
                 <source id="videoSource" src="" type="video/mp4">
                 Ваш браузер не поддерживает видео
             </video>
         </div>
-
-        <div class="player-controls">
-            <button id="playBtn">▶️</button>
-            <span id="timeDisplay">00:00 / 00:00</span>
-            <input type="range" id="progressBar" value="0">
-            <button id="fullscreenBtn">⛶</button>
-        </div>
-
-        <div id="playerStatus" class="status-info">💡 Выберите видео</div>
+        <div id="playerStatus" class="status-info">💡 Выберите аниме</div>
     </div>
 
-    <!-- Загрузка -->
-    <div id="loading" style="display:none; text-align:center; padding:40px;">
-        <div class="spinner"></div>
-        <p style="color:#888; margin-top:10px;">Поиск видео...</p>
-    </div>
-
-    <footer class="footer">Stas Anime · Поиск по YouTube и VK</footer>
+    <footer class="footer">Stas Anime · AniList · Встроенный плеер</footer>
 </div>
+
+<!-- МОДАЛКА ВХОДА -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-modal" id="closeModal">✕</button>
+        <h2 id="modalTitle">🔐 Вход</h2>
+        <input type="text" id="modalUsername" placeholder="Имя пользователя">
+        <input type="password" id="modalPassword" placeholder="Пароль">
+        <button id="modalSubmit">Войти</button>
+        <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ПРОФИЛЯ -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal profile-modal">
+        <button class="close-modal" id="closeProfile">✕</button>
+        <h2>👤 Профиль</h2>
+        <div class="profile-info">
+            <p>👤 <span id="profileUsername">Имя</span></p>
+            <p>❤️ Избранное: <span id="profileFavCount">0</span></p>
+            <p>👁️ Просмотренные: <span id="profileWatchedCount">0</span></p>
+        </div>
+        <h3>❤️ Избранное</h3>
+        <div id="profileFavList" class="profile-list"></div>
+        <h3>👁️ Просмотренные</h3>
+        <div id="profileWatchedList" class="profile-list"></div>
+    </div>
+</div>
+
+<!-- ТОСТ -->
+<div class="toast" id="toast"></div>
 
 <script src="app.js"></script>
 </body>
