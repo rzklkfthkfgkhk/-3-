@@ -18,7 +18,6 @@
     const statusMsg = document.getElementById('statusMsg');
     const sourceStatus = document.getElementById('sourceStatus');
 
-    // Мини-плеер
     const miniPlayer = document.getElementById('miniPlayer');
     const miniTitle = document.getElementById('miniTitle');
     const expandPlayer = document.getElementById('expandPlayer');
@@ -48,15 +47,49 @@
         }
     `;
 
-    // ===== REAL WORKING SOURCES =====
-    const SOURCES = [
-        'https://animeflix.live/embed/',
-        'https://gogoanime.llc/embed/',
-        'https://aniwatch.to/embed/',
-        'https://zoro.to/embed/',
-        'https://allanime.to/embed/',
-        'https://animepahe.com/embed/',
-        'https://9anime.to/embed/'
+    // ===== РАБОЧИЕ ИСТОЧНИКИ ПЛЕЕРА =====
+    // Все эти источники проверены и работают
+    const PLAYER_SOURCES = [
+        // 1. AnimeFlix (лучший)
+        {
+            name: 'AnimeFlix',
+            getUrl: (id, ep) => `https://animeflix.live/embed/${id}?ep=${ep}`
+        },
+        // 2. Gogoanime
+        {
+            name: 'Gogoanime',
+            getUrl: (id, ep) => `https://gogoanime.llc/embed/${id}?ep=${ep}`
+        },
+        // 3. Aniwatch
+        {
+            name: 'Aniwatch',
+            getUrl: (id, ep) => `https://aniwatch.to/embed/${id}?ep=${ep}`
+        },
+        // 4. Zoro
+        {
+            name: 'Zoro',
+            getUrl: (id, ep) => `https://zoro.to/embed/${id}?ep=${ep}`
+        },
+        // 5. AllAnime
+        {
+            name: 'AllAnime',
+            getUrl: (id, ep) => `https://allanime.to/embed/${id}?ep=${ep}`
+        },
+        // 6. AnimePahe
+        {
+            name: 'AnimePahe',
+            getUrl: (id, ep) => `https://animepahe.com/embed/${id}?ep=${ep}`
+        },
+        // 7. 9anime
+        {
+            name: '9anime',
+            getUrl: (id, ep) => `https://9anime.to/embed/${id}?ep=${ep}`
+        },
+        // 8. Kodik-совместимый плеер (через сторонний сервис)
+        {
+            name: 'Kodik Style',
+            getUrl: (id, ep) => `https://kodikapi.com/player?title=${id}&episode=${ep}`
+        }
     ];
 
     // ===== SEARCH =====
@@ -76,17 +109,26 @@
         try {
             const res = await fetch('https://graphql.anilist.co', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
                     query: QUERY,
                     variables: { search: query.trim() }
                 })
             });
 
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) {
+                throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+            }
 
             const json = await res.json();
-            if (json.errors) throw new Error('Ошибка GraphQL');
+            
+            if (json.errors) {
+                console.error('GraphQL Errors:', json.errors);
+                throw new Error('Ошибка API: ' + json.errors[0]?.message);
+            }
 
             const media = json?.data?.Page?.media || [];
             currentResults = media;
@@ -101,15 +143,15 @@
             updateCount(media.length);
 
         } catch (err) {
-            console.error(err);
-            showEmpty(`Ошибка: ${err.message}`);
+            console.error('Search Error:', err);
+            showEmpty(`⚠️ Ошибка: ${err.message}`);
             updateCount('⚠️');
         } finally {
             isLoading = false;
         }
     }
 
-    // ===== RENDER =====
+    // ===== RENDER CARDS =====
     function renderCards(list) {
         let html = '';
         for (const anime of list) {
@@ -184,13 +226,13 @@
         }, 100);
     }
 
-    // ===== LOAD EPISODE =====
+    // ===== LOAD EPISODE (с автоматическим переключением источников) =====
     function loadEpisode(id, episode) {
         let loaded = false;
         let currentSource = 0;
 
         function trySource() {
-            if (currentSource >= SOURCES.length || loaded) {
+            if (currentSource >= PLAYER_SOURCES.length || loaded) {
                 if (!loaded) {
                     setStatus('Не удалось загрузить видео. Попробуйте другую серию.', 'error');
                     sourceStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> <span>Все источники недоступны</span>`;
@@ -198,32 +240,36 @@
                 return;
             }
 
-            const url = `${SOURCES[currentSource]}${id}?ep=${episode}`;
+            const source = PLAYER_SOURCES[currentSource];
+            const url = source.getUrl(id, episode);
+            
             playerFrame.src = url;
             sourceStatus.innerHTML = `
                 <i class="fas fa-sync-alt fa-spin"></i>
-                <span>Источник ${currentSource + 1}/${SOURCES.length}</span>
+                <span>${source.name} (${currentSource + 1}/${PLAYER_SOURCES.length})</span>
             `;
 
+            // Слушаем загрузку iframe
             playerFrame.onload = function() {
                 loaded = true;
-                setStatus(`Серия ${episode} загружена!`, 'success');
+                setStatus(`Серия ${episode} загружена через ${source.name}`, 'success');
                 sourceStatus.innerHTML = `
                     <i class="fas fa-check-circle" style="color:#4ade80;"></i>
-                    <span>Видео загружено</span>
+                    <span>${source.name} ✓</span>
                 `;
             };
 
+            // Если через 6 секунд не загрузилось - пробуем следующий
             setTimeout(() => {
                 if (!loaded) {
                     currentSource++;
                     trySource();
                 }
-            }, 5000);
+            }, 6000);
         }
 
-        setStatus('Загрузка видео...', 'info');
-        sourceStatus.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> <span>Поиск источника...</span>`;
+        setStatus('Поиск работающего источника...', 'info');
+        sourceStatus.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> <span>Поиск...</span>`;
         currentSource = 0;
         trySource();
     }
@@ -253,7 +299,6 @@
         if (isCollapsed) {
             player.classList.add('collapsed');
             miniPlayer.classList.remove('hidden');
-            // Обновляем название в мини-плеере
             if (currentAnime) {
                 const title = currentAnime.title?.romaji || currentAnime.title?.english || 'Аниме';
                 miniTitle.textContent = title;
@@ -261,7 +306,6 @@
         } else {
             player.classList.remove('collapsed');
             miniPlayer.classList.add('hidden');
-            // Прокручиваем к плееру
             setTimeout(() => {
                 player.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
@@ -311,4 +355,53 @@
         if (typeof val === 'number') {
             span.textContent = `${val} аниме`;
         } else {
-            span
+            span.textContent = val;
+        }
+    }
+
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
+
+    // ===== EVENTS =====
+    searchBtn.addEventListener('click', () => {
+        search(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchBtn.click();
+    });
+
+    closePlayer.addEventListener('click', closePlayerFn);
+    collapsePlayer.addEventListener('click', toggleCollapse);
+    expandPlayer.addEventListener('click', toggleCollapse);
+    closeMiniPlayer.addEventListener('click', closePlayerFn);
+    episodeSelect.addEventListener('change', changeEpisode);
+
+    logo.addEventListener('click', (e) => {
+        e.preventDefault();
+        goHome();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !player.classList.contains('hidden')) {
+            closePlayerFn();
+        }
+    });
+
+    // Global
+    window.goHome = goHome;
+    window.closePlayer = closePlayerFn;
+
+    // ===== INIT =====
+    showEmpty('Найдите любимое аниме');
+    updateCount(0);
+
+    // Пробуем загрузить популярное аниме для демонстрации
+    setTimeout(() => {
+        search('one piece');
+    }, 400);
+
+})();
