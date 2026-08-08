@@ -22,7 +22,6 @@
     const playerFrame = document.getElementById('playerFrame');
     const closePlayer = document.getElementById('closePlayer');
     const episodeSelect = document.getElementById('episodeSelect');
-    const qualitySelect = document.getElementById('qualitySelect');
     const statusMsg = document.getElementById('statusMsg');
     const sourceStatus = document.getElementById('sourceStatus');
     const reloadBtn = document.getElementById('reloadBtn');
@@ -89,6 +88,11 @@
         return currentUser.watched || [];
     }
 
+    function updateBadges() {
+        favCount.textContent = getFavorites().length;
+        watchedCount.textContent = getWatched().length;
+    }
+
     function saveUserData() {
         if (currentUser) {
             localStorage.setItem('animeUser', JSON.stringify(currentUser));
@@ -105,13 +109,16 @@
         const idx = favs.indexOf(id);
         if (idx > -1) {
             favs.splice(idx, 1);
+            showToast('💔 Убрано из избранного');
         } else {
             favs.push(id);
+            showToast('❤️ Добавлено в избранное');
         }
         currentUser.favorites = favs;
         saveUserData();
         renderCurrentView();
         updateCardButtons();
+        updateWatchBtn();
     }
 
     function toggleWatched(id) {
@@ -123,5 +130,5 @@
         const idx = watched.indexOf(id);
         if (idx > -1) {
             watched.splice(idx, 1);
-        } else {
-            watched.push(id
+            showToast('👁️ Убрано из просмотренных');
+        }
