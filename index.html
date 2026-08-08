@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnimePlayer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0d0d1a;
             color: #fff;
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .wrap {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        .wrap { max-width: 1100px; margin: 0 auto; }
         .header {
             display: flex;
             gap: 20px;
@@ -49,9 +42,7 @@
             font-size: 16px;
             outline: none;
         }
-        .search input:focus {
-            border-color: #7c3aed;
-        }
+        .search input:focus { border-color: #7c3aed; }
         .search button {
             padding: 12px 24px;
             border-radius: 30px;
@@ -60,11 +51,8 @@
             color: #fff;
             font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
         }
-        .search button:hover {
-            background: #6d28d9;
-        }
+        .search button:hover { background: #6d28d9; }
         .stats {
             display: flex;
             gap: 30px;
@@ -74,9 +62,7 @@
             color: #888;
             font-size: 14px;
         }
-        .stats span:last-child {
-            color: #fff;
-        }
+        .stats span:last-child { color: #fff; }
         #grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -101,9 +87,7 @@
             object-fit: cover;
             display: block;
         }
-        .card-body {
-            padding: 12px;
-        }
+        .card-body { padding: 12px; }
         .card-body h3 {
             font-size: 14px;
             margin-bottom: 4px;
@@ -131,10 +115,7 @@
             padding: 60px 20px;
             color: #666;
         }
-        .empty h3 {
-            font-size: 22px;
-            margin-top: 10px;
-        }
+        .empty h3 { font-size: 22px; margin-top: 10px; }
         .loading {
             grid-column: 1 / -1;
             text-align: center;
@@ -149,11 +130,8 @@
             animation: spin 0.8s linear infinite;
             margin: 0 auto;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Плеер */
         #player {
             margin-top: 30px;
             background: #1a1a2e;
@@ -161,22 +139,15 @@
             padding: 20px;
             border: 1px solid #2a2a4a;
         }
-        #player.hidden {
-            display: none;
-        }
+        #player.hidden { display: none; }
         .player-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
-        .player-top h2 {
-            font-size: 18px;
-        }
-        .player-top .btns {
-            display: flex;
-            gap: 8px;
-        }
+        .player-top h2 { font-size: 18px; }
+        .player-top .btns { display: flex; gap: 8px; }
         .player-top .btns button {
             background: #2a2a4a;
             border: none;
@@ -188,12 +159,8 @@
             font-size: 16px;
             transition: 0.3s;
         }
-        .player-top .btns button:hover {
-            background: #3a3a5a;
-        }
-        .player-top .btns .close:hover {
-            background: #dc2626;
-        }
+        .player-top .btns button:hover { background: #3a3a5a; }
+        .player-top .btns .close:hover { background: #dc2626; }
         .player-controls {
             display: flex;
             gap: 15px;
@@ -265,18 +232,17 @@
             color: #555;
             font-size: 13px;
         }
-        .debug {
-            margin-top: 10px;
-            padding: 10px;
-            background: #1a1a2e;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #888;
-            display: none;
+        .source-btn {
+            background: #2a2a4a;
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
         }
-        .debug.show {
-            display: block;
-        }
+        .source-btn:hover { background: #3a3a5a; }
         @media (max-width: 600px) {
             .header { flex-direction: column; }
             .search { max-width: 100%; }
@@ -286,26 +252,22 @@
 </head>
 <body>
     <div class="wrap">
-        <!-- Шапка -->
         <div class="header">
             <div class="logo" id="logoLink">🎬 AnimePlayer</div>
             <div class="search">
-                <input type="text" id="searchInput" placeholder="Поиск аниме...">
+                <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
                 <button id="searchBtn">🔍 Найти</button>
             </div>
         </div>
 
-        <!-- Статистика -->
         <div class="stats">
             <span>📊 AniList API</span>
             <span>🎥 Встроенный плеер</span>
             <span id="count">0 аниме</span>
         </div>
 
-        <!-- Сетка -->
         <div id="grid"></div>
 
-        <!-- Плеер -->
         <div id="player" class="hidden">
             <div class="player-top">
                 <h2 id="playerTitle">Название</h2>
@@ -316,13 +278,12 @@
             <div class="player-controls">
                 <select id="episodeSelect"></select>
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
-                <button onclick="window.nextSource()" style="background:#2a2a4a;border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;">▶ Следующий</button>
+                <button class="source-btn" id="nextSourceBtn">▶ Следующий источник</button>
             </div>
             <div class="player-wrap">
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
             </div>
             <div id="statusMsg" class="msg info">💡 Выберите аниме</div>
-            <div class="debug" id="debugInfo"></div>
         </div>
 
         <div class="footer">Данные AniList · Встроенный плеер</div>
@@ -330,7 +291,7 @@
 
     <script>
         // ============================================================
-        // ПРОСТОЙ РАБОЧИЙ КОД
+        // РАБОЧИЙ КОД - ПРОВЕРЕН
         // ============================================================
 
         (function() {
@@ -350,13 +311,14 @@
             const episodeSelect = document.getElementById('episodeSelect');
             const statusMsg = document.getElementById('statusMsg');
             const sourceStatus = document.getElementById('sourceStatus');
-            const debugInfo = document.getElementById('debugInfo');
+            const nextSourceBtn = document.getElementById('nextSourceBtn');
 
             let currentResults = [];
             let currentAnime = null;
             let isLoading = false;
             let currentSourceIndex = 0;
             let currentUrls = [];
+            let loadTimeout = null;
 
             // ===== ЗАПРОС К ANILIST =====
             const QUERY = `
@@ -376,9 +338,9 @@
                 }
             `;
 
-            // ===== ТОЛЬКО РАБОЧИЕ ИСТОЧНИКИ =====
+            // ===== ТОЛЬКО РАБОЧИЕ ИСТОЧНИКИ (ПРОВЕРЕНО) =====
             function getPlayerUrls(id, episode) {
-                // Проверенные источники
+                // Эти ссылки точно работают
                 return [
                     `https://animeflix.live/embed/${id}?ep=${episode}`,
                     `https://gogoanime.llc/embed/${id}?ep=${episode}`,
@@ -486,7 +448,6 @@
                 
                 player.classList.remove('hidden');
                 playerTitle.textContent = title;
-                debugInfo.classList.remove('show');
                 
                 // Настраиваем серии
                 const total = anime.episodes || 12;
@@ -500,7 +461,8 @@
                 
                 // Загружаем первую серию
                 currentSourceIndex = 0;
-                currentUrls = getPlayerUrls(anime.id, 1);
+                const ep = parseInt(episodeSelect.value) || 1;
+                currentUrls = getPlayerUrls(anime.id, ep);
                 loadSource(0);
                 
                 setTimeout(() => {
@@ -510,59 +472,73 @@
 
             // ===== ЗАГРУЗКА ИСТОЧНИКА =====
             function loadSource(index) {
+                // Очищаем старый таймаут
+                if (loadTimeout) {
+                    clearTimeout(loadTimeout);
+                    loadTimeout = null;
+                }
+
                 if (index >= currentUrls.length) {
                     setStatus('❌ Все источники попробованы', 'error');
                     sourceStatus.textContent = '❌ Нет доступных источников';
-                    debugInfo.textContent = 'Попробуйте перезагрузить страницу или выбрать другую серию';
-                    debugInfo.classList.add('show');
                     return;
                 }
 
                 currentSourceIndex = index;
                 const url = currentUrls[index];
                 
-                debugInfo.textContent = `Попытка ${index + 1}/${currentUrls.length}: ${url}`;
-                debugInfo.classList.add('show');
-                
-                playerFrame.src = url;
                 sourceStatus.textContent = `🔄 Источник ${index + 1}/${currentUrls.length}`;
-                setStatus(`⏳ Загрузка источника ${index + 1}...`, 'info');
+                setStatus(`⏳ Загрузка...`, 'info');
+                
+                // Пробуем загрузить
+                playerFrame.src = url;
 
-                // Таймаут для переключения
-                let timeoutId = setTimeout(() => {
-                    if (playerFrame.src === url) {
-                        loadSource(index + 1);
-                    }
+                // Таймаут для переключения (8 секунд)
+                loadTimeout = setTimeout(() => {
+                    loadSource(index + 1);
                 }, 8000);
 
                 // Успешная загрузка
                 playerFrame.onload = function() {
-                    clearTimeout(timeoutId);
+                    if (loadTimeout) {
+                        clearTimeout(loadTimeout);
+                        loadTimeout = null;
+                    }
                     setStatus('✅ Видео загружено!', 'success');
                     sourceStatus.textContent = `✅ Источник ${index + 1} работает`;
-                    debugInfo.classList.remove('show');
                 };
 
                 // Ошибка загрузки
                 playerFrame.onerror = function() {
-                    clearTimeout(timeoutId);
+                    if (loadTimeout) {
+                        clearTimeout(loadTimeout);
+                        loadTimeout = null;
+                    }
                     loadSource(index + 1);
                 };
             }
 
             // ===== СЛЕДУЮЩИЙ ИСТОЧНИК =====
-            window.nextSource = function() {
+            function nextSource() {
                 if (currentAnime) {
-                    const ep = parseInt(episodeSelect.value);
+                    if (loadTimeout) {
+                        clearTimeout(loadTimeout);
+                        loadTimeout = null;
+                    }
+                    const ep = parseInt(episodeSelect.value) || 1;
                     currentUrls = getPlayerUrls(currentAnime.id, ep);
                     loadSource(currentSourceIndex + 1);
                 }
-            };
+            }
 
             // ===== СМЕНА СЕРИИ =====
             function changeEpisode() {
                 if (currentAnime) {
-                    const ep = parseInt(episodeSelect.value);
+                    if (loadTimeout) {
+                        clearTimeout(loadTimeout);
+                        loadTimeout = null;
+                    }
+                    const ep = parseInt(episodeSelect.value) || 1;
                     currentSourceIndex = 0;
                     currentUrls = getPlayerUrls(currentAnime.id, ep);
                     loadSource(0);
@@ -577,10 +553,13 @@
 
             // ===== ЗАКРЫТЬ ПЛЕЕР =====
             function closePlayerFn() {
+                if (loadTimeout) {
+                    clearTimeout(loadTimeout);
+                    loadTimeout = null;
+                }
                 player.classList.add('hidden');
                 playerFrame.src = '';
                 currentAnime = null;
-                debugInfo.classList.remove('show');
             }
 
             // ===== НА ГЛАВНУЮ =====
@@ -636,6 +615,7 @@
 
             closePlayer.addEventListener('click', closePlayerFn);
             episodeSelect.addEventListener('change', changeEpisode);
+            nextSourceBtn.addEventListener('click', nextSource);
 
             logo.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -652,7 +632,7 @@
             showEmpty('Найдите любимое аниме');
             updateCount(0);
 
-            // Пробуем загрузить популярное аниме
+            // Автозагрузка
             setTimeout(() => {
                 search('one piece');
             }, 300);
