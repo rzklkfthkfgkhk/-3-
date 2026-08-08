@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeHub - Смотреть аниме онлайн</title>
+    <title>Stas Anime - Смотреть аниме онлайн</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
         <header class="header">
             <div class="logo" id="logoLink">
                 <i class="fas fa-film"></i>
-                <span>Anime<span>Hub</span></span>
+                <span>Stas<span>Anime</span></span>
             </div>
             <div class="header-right">
                 <div class="search">
@@ -28,6 +28,7 @@
                 </div>
                 <div class="auth-btns" id="userInfo" style="display:none;">
                     <span class="user-name" id="userNameDisplay"><i class="fas fa-user"></i> </span>
+                    <button class="btn-profile" id="profileBtn"><i class="fas fa-id-card"></i></button>
                     <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
@@ -38,6 +39,7 @@
             <button class="active" data-tab="ongoing"><i class="fas fa-sync-alt"></i> Онгоинги</button>
             <button data-tab="top"><i class="fas fa-trophy"></i> Топ-100</button>
             <button data-tab="favorites"><i class="fas fa-heart"></i> Избранное <span class="badge" id="favCount">0</span></button>
+            <button data-tab="watched"><i class="fas fa-eye"></i> Просмотренные <span class="badge" id="watchedCount">0</span></button>
             <button data-tab="search" id="searchTab"><i class="fas fa-search"></i> Поиск</button>
         </nav>
 
@@ -50,7 +52,7 @@
         <!-- GRID -->
         <div id="grid"></div>
 
-        <!-- ПЛЕЕР ДЛЯ ОНЛАЙН ПРОСМОТРА -->
+        <!-- ПЛЕЕР -->
         <div id="player" class="hidden">
             <div class="player-top">
                 <h2 id="playerTitle"><i class="fas fa-play-circle" style="color:#7c3aed;"></i> Название</h2>
@@ -69,6 +71,7 @@
                 <span class="status" id="sourceStatus"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
                 <button id="nextSourceBtn"><i class="fas fa-forward"></i> Следующий</button>
                 <button id="reloadBtn"><i class="fas fa-sync-alt"></i></button>
+                <button id="watchBtn" class="watch-btn"><i class="fas fa-check"></i> Просмотрено</button>
             </div>
             <div class="player-wrapper">
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
@@ -77,11 +80,11 @@
         </div>
 
         <footer class="footer">
-            <p><i class="fas fa-code"></i> AnimeHub · Данные AniList · Встроенный плеер</p>
+            <p><i class="fas fa-code"></i> Stas Anime · Данные AniList · Встроенный плеер</p>
         </footer>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL AUTH -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <button class="close-modal" id="closeModal"><i class="fas fa-times"></i></button>
@@ -90,6 +93,25 @@
             <input type="password" id="modalPassword" placeholder="Пароль">
             <button id="modalSubmit">Войти</button>
             <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
+        </div>
+    </div>
+
+    <!-- MODAL PROFILE -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal profile-modal">
+            <button class="close-modal" id="closeProfile"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-id-card" style="color:#7c3aed;"></i> Профиль</h2>
+            <div class="profile-info">
+                <p><i class="fas fa-user"></i> <span id="profileUsername">Имя</span></p>
+                <p><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное: <span id="profileFavCount">0</span></p>
+                <p><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные: <span id="profileWatchedCount">0</span></p>
+            </div>
+            <div class="profile-lists">
+                <h3><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное</h3>
+                <div id="profileFavList" class="profile-list"></div>
+                <h3><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные</h3>
+                <div id="profileWatchedList" class="profile-list"></div>
+            </div>
         </div>
     </div>
 
