@@ -243,6 +243,11 @@
             transition: 0.3s;
         }
         .source-btn:hover { background: #3a3a5a; }
+        .source-btn.kodik {
+            background: #7c3aed;
+            color: #fff;
+        }
+        .source-btn.kodik:hover { background: #6d28d9; }
         @media (max-width: 600px) {
             .header { flex-direction: column; }
             .search { max-width: 100%; }
@@ -278,7 +283,8 @@
             <div class="player-controls">
                 <select id="episodeSelect"></select>
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
-                <button class="source-btn" id="nextSourceBtn">▶ Следующий источник</button>
+                <button class="source-btn kodik" id="kodikBtn">🎬 Kodik</button>
+                <button class="source-btn" id="nextSourceBtn">▶ Следующий</button>
             </div>
             <div class="player-wrap">
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
@@ -291,11 +297,14 @@
 
     <script>
         // ============================================================
-        // РАБОЧИЙ КОД С KODIK ПЛЕЕРОМ
+        // РАБОЧИЙ КОД С KODIK API (ТОКЕН ВСТАВЛЕН)
         // ============================================================
 
         (function() {
             'use strict';
+
+            // ===== ТОКЕН KODIK =====
+            const KODIK_TOKEN = 'b7cc4293ed475c4ad1fd599d114f4435';
 
             // DOM
             const searchInput = document.getElementById('searchInput');
@@ -312,6 +321,7 @@
             const statusMsg = document.getElementById('statusMsg');
             const sourceStatus = document.getElementById('sourceStatus');
             const nextSourceBtn = document.getElementById('nextSourceBtn');
+            const kodikBtn = document.getElementById('kodikBtn');
 
             let currentResults = [];
             let currentAnime = null;
@@ -338,23 +348,33 @@
                 }
             `;
 
-            // ===== ИСТОЧНИКИ ПЛЕЕРА (ВКЛЮЧАЯ KODIK) =====
+            // ===== ИСТОЧНИКИ ПЛЕЕРА (С ТОКЕНОМ KODIK) =====
             function getPlayerUrls(id, episode) {
-                // Kodik-style плеер (пытаемся использовать ID напрямую)
-                // Обратите внимание: для Kodik может потребоваться другой ID (например, из их базы)
-                // Но мы попробуем использовать стандартный AniList ID
-                const kodikUrl = `https://kodikapi.com/get-player?hash=${id}&episode=${episode}`;
+                // KODIK С ТОКЕНОМ - ПРЯМЫЕ ЗАПРОСЫ К API
+                const kodikWithToken = `https://kodikapi.com/get-player?token=${KODIK_TOKEN}&hash=${id}&episode=${episode}`;
+                const kodikWithToken2 = `https://kodikapi.com/get-player?token=${KODIK_TOKEN}&title=${id}&episode=${episode}`;
                 
-                // Также можно попробовать прямой embed, если у Kodik есть открытый плеер
-                const kodikEmbedUrl = `https://kodik.info/player/${id}/${episode}`;
-
+                // KODIK БЕЗ ТОКЕНА (для совместимости)
+                const kodikPlayer = `https://kodik.info/player/${id}/${episode}`;
+                const kodikPlayer2 = `https://kodikapi.com/player?hash=${id}&episode=${episode}`;
+                const kodikPlayer3 = `https://kodik.info/serial/${id}/${episode}`;
+                
+                // Другие плееры (запасные)
+                const animeFlix = `https://animeflix.live/embed/${id}?ep=${episode}`;
+                const gogoanime = `https://gogoanime.llc/embed/${id}?ep=${episode}`;
+                const aniwatch = `https://aniwatch.to/embed/${id}?ep=${episode}`;
+                const zoro = `https://zoro.to/embed/${id}?ep=${episode}`;
+                
                 return [
-                    kodikUrl,                                    // Kodik API (может требовать токен)
-                    kodikEmbedUrl,                               // Kodik Embed (альтернатива)
-                    `https://animeflix.live/embed/${id}?ep=${episode}`,
-                    `https://gogoanime.llc/embed/${id}?ep=${episode}`,
-                    `https://aniwatch.to/embed/${id}?ep=${episode}`,
-                    `https://zoro.to/embed/${id}?ep=${episode}`
+                    { name: '🎬 Kodik (с токеном)', url: kodikWithToken },
+                    { name: '🎬 Kodik (с токеном 2)', url: kodikWithToken2 },
+                    { name: '🎬 Kodik Player', url: kodikPlayer },
+                    { name: '🎬 Kodik API', url: kodikPlayer2 },
+                    { name: '🎬 Kodik Serial', url: kodikPlayer3 },
+                    { name: 'AnimeFlix', url: animeFlix },
+                    { name: 'Gogoanime', url: gogoanime },
+                    { name: 'Aniwatch', url: aniwatch },
+                    { name: 'Zoro', url: zoro }
                 ];
             }
 
@@ -471,7 +491,10 @@
                 // Загружаем первую серию
                 currentSourceIndex = 0;
                 const ep = parseInt(episodeSelect.value) || 1;
-                currentUrls = getPlayerUrls(anime.id, ep);
+                const sources = getPlayerUrls(anime.id, ep);
+                currentUrls = sources.map(s => s.url);
+                window._sourceNames = sources.map(s => s.name);
+                
                 loadSource(0);
                 
                 setTimeout(() => {
@@ -494,14 +517,7 @@
 
                 currentSourceIndex = index;
                 const url = currentUrls[index];
-                
-                // Определяем название источника для отображения
-                let sourceName = `Источник ${index + 1}`;
-                if (url.includes('kodik')) sourceName = '🎬 Kodik';
-                else if (url.includes('animeflix')) sourceName = 'AnimeFlix';
-                else if (url.includes('gogoanime')) sourceName = 'Gogoanime';
-                else if (url.includes('aniwatch')) sourceName = 'Aniwatch';
-                else if (url.includes('zoro')) sourceName = 'Zoro';
+                const sourceName = window._sourceNames ? window._sourceNames[index] : `Источник ${index + 1}`;
                 
                 sourceStatus.textContent = `🔄 ${sourceName} (${index + 1}/${currentUrls.length})`;
                 setStatus(`⏳ Загрузка ${sourceName}...`, 'info');
@@ -509,10 +525,10 @@
                 // Пробуем загрузить
                 playerFrame.src = url;
 
-                // Таймаут для переключения (8 секунд)
+                // Таймаут для переключения (10 секунд)
                 loadTimeout = setTimeout(() => {
                     loadSource(index + 1);
-                }, 8000);
+                }, 10000);
 
                 // Успешная загрузка
                 playerFrame.onload = function() {
@@ -534,6 +550,35 @@
                 };
             }
 
+            // ===== ЗАГРУЗИТЬ KODIK =====
+            function loadKodik() {
+                if (currentAnime) {
+                    if (loadTimeout) {
+                        clearTimeout(loadTimeout);
+                        loadTimeout = null;
+                    }
+                    const ep = parseInt(episodeSelect.value) || 1;
+                    const sources = getPlayerUrls(currentAnime.id, ep);
+                    
+                    // Ищем первый Kodik источник
+                    let kodikIndex = -1;
+                    for (let i = 0; i < sources.length; i++) {
+                        if (sources[i].name.includes('Kodik')) {
+                            kodikIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (kodikIndex !== -1) {
+                        currentUrls = sources.map(s => s.url);
+                        window._sourceNames = sources.map(s => s.name);
+                        loadSource(kodikIndex);
+                    } else {
+                        setStatus('❌ Kodik не найден в списке источников', 'error');
+                    }
+                }
+            }
+
             // ===== СЛЕДУЮЩИЙ ИСТОЧНИК =====
             function nextSource() {
                 if (currentAnime) {
@@ -542,7 +587,9 @@
                         loadTimeout = null;
                     }
                     const ep = parseInt(episodeSelect.value) || 1;
-                    currentUrls = getPlayerUrls(currentAnime.id, ep);
+                    const sources = getPlayerUrls(currentAnime.id, ep);
+                    currentUrls = sources.map(s => s.url);
+                    window._sourceNames = sources.map(s => s.name);
                     loadSource(currentSourceIndex + 1);
                 }
             }
@@ -555,8 +602,10 @@
                         loadTimeout = null;
                     }
                     const ep = parseInt(episodeSelect.value) || 1;
+                    const sources = getPlayerUrls(currentAnime.id, ep);
                     currentSourceIndex = 0;
-                    currentUrls = getPlayerUrls(currentAnime.id, ep);
+                    currentUrls = sources.map(s => s.url);
+                    window._sourceNames = sources.map(s => s.name);
                     loadSource(0);
                 }
             }
@@ -632,6 +681,7 @@
             closePlayer.addEventListener('click', closePlayerFn);
             episodeSelect.addEventListener('change', changeEpisode);
             nextSourceBtn.addEventListener('click', nextSource);
+            kodikBtn.addEventListener('click', loadKodik);
 
             logo.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -648,7 +698,6 @@
             showEmpty('Найдите любимое аниме');
             updateCount(0);
 
-            // Автозагрузка
             setTimeout(() => {
                 search('one piece');
             }, 300);
