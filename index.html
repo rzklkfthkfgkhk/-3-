@@ -1,99 +1,132 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AniList-like Anime Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnimeHub</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">AnimeHub</div>
-    <nav class="nav">
-      <button id="btnHome" class="link-btn">Главная</button>
-      <button id="btnProfile" class="link-btn">Профиль</button>
-      <button id="btnLogout" class="link-btn" style="display:none;">Выйти</button>
-      <button id="btnTheme" class="link-btn" title="Сменить тему">☀️</button>
-    </nav>
-  </header>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">AnimeHub</div>
 
-  <main class="container">
-    <!-- AUTH: регистрация/вход -->
-    <section id="authSection" class="card auth">
-      <h2>Вход или регистрация</h2>
-      <div class="auth-forms">
-        <form id="loginForm" class="form">
-          <h3>Вход</h3>
-          <label>Имя пользователя
-            <input type="text" id="loginUsername" required />
-          </label>
-          <label>Пароль
-            <input type="password" id="loginPassword" required />
-          </label>
-          <button type="submit">Войти</button>
-        </form>
+      <nav class="nav">
+        <button data-route="home" class="nav-btn active">Главная</button>
+        <button data-route="profile" class="nav-btn">Профиль</button>
+      </nav>
 
-        <form id="registerForm" class="form">
-          <h3>Регистрация</h3>
-          <label>Имя пользователя
-            <input type="text" id="regUsername" required />
-          </label>
-          <label>Пароль
-            <input type="password" id="regPassword" required />
-          </label>
-          <button type="submit">Зарегистрироваться</button>
-        </form>
+      <div class="header-actions">
+        <button id="themeToggle" class="btn">Тема</button>
+        <button id="authBtn" class="btn primary">Вход</button>
       </div>
-      <div id="authMessage" class="message" aria-live="polite"></div>
+    </header>
+
+    <main id="view"></main>
+  </div>
+
+  <template id="homeView">
+    <section class="hero">
+      <div>
+        <h1>Сайт с аниме на AniList</h1>
+        <p>Ищи аниме, добавляй в избранное, отмечай просмотренное и брошенное.</p>
+      </div>
+      <div class="search-box">
+        <input id="searchInput" type="text" placeholder="Поиск аниме..." />
+        <button id="searchBtn" class="btn primary">Искать</button>
+      </div>
     </section>
 
-    <!-- APP: основное содержимое -->
-    <section id="contentSection" class="content" style="display:none;">
-      <section class="grid-controls">
-        <div class="search-area">
-          <input id="searchInput" placeholder="Поиск аниме через AniList..." />
-          <button id="searchBtn">Поиск</button>
-        </div>
-      </section>
-
-      <section id="animeList" class="grid"></section>
-
-      <section id="playerSection" class="player" style="display:none;">
-        <h2 id="playerTitle">Просмотр: </h2>
-        <div class="player-area">
-          <iframe id="episodePlayer" width="100%" height="360" src="" frameborder="0" allowfullscreen></iframe>
-        </div>
-        <div id="episodeList" class="episode-list"></div>
-      </section>
-
-      <section id="profileSection" class="profile" style="display:none;">
-        <div class="profile-header">
-          <div class="avatar-wrap">
-            <img id="avatarImg" src="" alt="Аватар" class="avatar" />
-            <input id="avatarInput" type="file" accept="image/*" />
-          </div>
-          <div class="profile-info">
-            <h3 id="profileUsername"></h3>
-          </div>
-        </div>
-
-        <div class="profile-lists">
-          <div class="list-block">
-            <h4>Избранное</h4>
-            <ul id="listFavorites"></ul>
-          </div>
-          <div class="list-block">
-            <h4>Просмотренные</h4>
-            <ul id="listWatched"></ul>
-          </div>
-          <div class="list-block">
-            <h4>Брошенные</h4>
-            <ul id="listDropped"></ul>
-          </div>
-        </div>
-      </section>
+    <section>
+      <div class="section-title">
+        <h2>Популярное аниме</h2>
+        <button id="loadTrending" class="btn">Обновить</button>
+      </div>
+      <div id="animeList" class="grid"></div>
     </section>
-  </main>
+
+    <section id="playerSection" class="player-section hidden">
+      <div class="section-title">
+        <h2 id="playerTitle">Просмотр аниме</h2>
+      </div>
+      <div class="player-layout">
+        <div class="player-main">
+          <div class="video-frame">
+            <iframe id="videoFrame" src="" allowfullscreen></iframe>
+          </div>
+          <div id="episodeList" class="episode-list"></div>
+        </div>
+        <div class="player-side">
+          <h3>Информация</h3>
+          <div id="animeInfo"></div>
+        </div>
+      </div>
+      <p class="note">
+        Плеер — это подключаемая зона для официальных/embed-источников.  
+        Для реального стриминга используй легальные сервисы и публичные embed-вставки.
+      </p>
+    </section>
+  </template>
+
+  <template id="profileView">
+    <section class="profile">
+      <div class="profile-card">
+        <div class="avatar-wrap">
+          <img id="profileAvatar" class="avatar" src="" alt="Аватар" />
+          <input id="avatarInput" type="file" accept="image/*" hidden />
+          <button id="changeAvatarBtn" class="btn">Сменить аватар</button>
+        </div>
+
+        <div class="profile-info">
+          <h2 id="profileName">Профиль</h2>
+          <p id="profileEmail"></p>
+          <div class="profile-stats">
+            <div><span id="favCount">0</span><small>Избранное</small></div>
+            <div><span id="watchedCount">0</span><small>Просмотрено</small></div>
+            <div><span id="droppedCount">0</span><small>Брошено</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-tabs">
+        <button class="tab-btn active" data-tab="favorites">Избранное</button>
+        <button class="tab-btn" data-tab="watched">Просмотрено</button>
+        <button class="tab-btn" data-tab="dropped">Брошено</button>
+      </div>
+
+      <div id="profileAnimeList" class="grid"></div>
+    </section>
+  </template>
+
+  <template id="authView">
+    <section class="auth">
+      <div class="auth-card">
+        <h2>Вход / Регистрация</h2>
+
+        <div class="auth-switch">
+          <button class="tab-btn active" id="loginTab">Вход</button>
+          <button class="tab-btn" id="registerTab">Регистрация</button>
+        </div>
+
+        <div id="loginForm" class="auth-form">
+          <input id="loginEmail" type="email" placeholder="Email" />
+          <input id="loginPass" type="password" placeholder="Пароль" />
+          <button id="loginBtn" class="btn primary">Войти</button>
+        </div>
+
+        <div id="registerForm" class="auth-form hidden">
+          <input id="regName" type="text" placeholder="Имя" />
+          <input id="regEmail" type="email" placeholder="Email" />
+          <input id="regPass" type="password" placeholder="Пароль" />
+          <button id="registerBtn" class="btn primary">Зарегистрироваться</button>
+        </div>
+
+        <p class="note">Демо-авторизация хранится в localStorage. Для продакшена нужен сервер.</p>
+      </div>
+    </section>
+  </template>
+
+  <div id="toast" class="toast hidden"></div>
 
   <script src="app.js"></script>
 </body>
