@@ -1,5 +1,5 @@
 // ============================================================
-// РАБОЧИЙ ПЛЕЕР
+// ТОЛЬКО VK ПЛЕЕР
 // ============================================================
 
 (function() {
@@ -14,59 +14,30 @@
     const closePlayer = document.getElementById('closePlayer');
     const playerStatus = document.getElementById('playerStatus');
 
-    // ===== ПОИСК В VK =====
+    // ===== ПОИСК ТОЛЬКО В VK =====
     async function searchVK(query) {
         try {
-            const url = `https://api.vk.com/method/video.search?q=${encodeURIComponent(query)}&count=10&sort=2&v=5.131`;
+            // Прямой запрос к VK API
+            const url = `https://api.vk.com/method/video.search?q=${encodeURIComponent(query)}&count=15&sort=2&hd=1&v=5.131`;
             const response = await fetch(url);
             const data = await response.json();
 
-            if (data.response && data.response.items) {
+            console.log('VK ответ:', data);
+
+            if (data.response && data.response.items && data.response.items.length > 0) {
                 return data.response.items.map(item => ({
                     id: item.id,
                     title: item.title || 'Без названия',
                     source: 'VK',
                     thumbnail: item.image?.[0]?.url || '',
                     url: `https://vk.com/video_ext.php?oid=${item.owner_id}&id=${item.id}&hash=${item.access_key || ''}`,
-                    duration: item.duration || 0
+                    duration: item.duration || 0,
+                    views: item.views || 0
                 }));
             }
             return [];
         } catch (error) {
-            console.error('VK error:', error);
-            return [];
-        }
-    }
-
-    // ===== ПОИСК В YOUTUBE =====
-    async function searchYouTube(query) {
-        try {
-            const response = await fetch(
-                `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
-            );
-            const html = await response.text();
-
-            const videoIds = [];
-            const regex = /"videoId":"([^"]+)"/g;
-            let match;
-            let count = 0;
-            while ((match = regex.exec(html)) !== null && count < 10) {
-                if (!videoIds.includes(match[1])) {
-                    videoIds.push(match[1]);
-                    count++;
-                }
-            }
-
-            return videoIds.map(id => ({
-                id: id,
-                title: query,
-                source: 'YouTube',
-                thumbnail: `https://img.youtube.com/vi/${id}/mqdefault.jpg`,
-                url: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`,
-                duration: 0
-            }));
-        } catch (error) {
-            console.error('YouTube error:', error);
+            console.error('VK ошибка:', error);
             return [];
         }
     }
@@ -78,20 +49,16 @@
             return;
         }
 
-        results.innerHTML = `<div class="loading"><div class="spinner"></div><p>Поиск видео...</p></div>`;
+        results.innerHTML = `<div class="loading"><div class="spinner"></div><p>Поиск в VK...</p></div>`;
 
         try {
-            let videos = await searchVK(query);
-            
-            if (videos.length === 0) {
-                videos = await searchYouTube(query);
-            }
+            const videos = await searchVK(query);
 
             if (videos.length === 0) {
                 results.innerHTML = `
                     <div class="empty">
                         <i class="fas fa-video-slash"></i>
-                        <h3>Ничего не найдено</h3>
+                        <h3>Ничего не найдено в VK</h3>
                         <p style="color:#555;">Попробуйте другой запрос</p>
                         <button onclick="searchVideos('one piece 1 серия')" style="margin-top:10px;padding:8px 20px;border-radius:20px;border:none;background:#7c3aed;color:#fff;cursor:pointer;">Пример: one piece 1 серия</button>
                     </div>
@@ -122,7 +89,7 @@
                          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22168%22%3E%3Crect fill=%22%2314142a%22 width=%22300%22 height=%22168%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22%23555%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3ENo preview%3C/text%3E%3C/svg%3E'" />
                     <div class="info">
                         <h4>${escapeHtml(video.title)}</h4>
-                        <span class="source">📺 ${video.source}</span>
+                        <span class="source">📺 VK ${video.duration ? '· ' + formatDuration(video.duration) : ''}</span>
                     </div>
                 </div>
             `;
@@ -143,7 +110,7 @@
         player.classList.remove('hidden');
         playerTitle.textContent = '🎬 ' + title;
         playerFrame.src = url;
-        playerStatus.textContent = '▶️ Воспроизведение...';
+        playerStatus.textContent = '▶️ Воспроизведение из VK';
         playerStatus.className = 'player-status success';
 
         setTimeout(() => {
@@ -164,6 +131,13 @@
         const d = document.createElement('div');
         d.textContent = text;
         return d.innerHTML;
+    }
+
+    function formatDuration(seconds) {
+        if (!seconds) return '';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${String(s).padStart(2, '0')}`;
     }
 
     // ===== СОБЫТИЯ =====
