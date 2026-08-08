@@ -10,114 +10,108 @@
 </head>
 <body>
 
-    <div class="wrap">
-        <!-- HEADER -->
-        <header class="header">
-            <div class="logo" id="logoLink">
-                <i class="fas fa-film"></i>
-                <span>Stas<span>Anime</span></span>
-            </div>
-            <div class="header-right">
-                <div class="search">
-                    <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
-                    <button id="searchBtn"><i class="fas fa-search"></i></button>
-                </div>
-                <div class="auth-btns" id="authBtns">
-                    <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Вход</button>
-                    <button class="btn-register" id="registerBtn"><i class="fas fa-user-plus"></i> Регистрация</button>
-                </div>
-                <div class="auth-btns" id="userInfo" style="display:none;">
-                    <span class="user-name" id="userNameDisplay"><i class="fas fa-user"></i> </span>
-                    <button class="btn-profile" id="profileBtn"><i class="fas fa-id-card"></i></button>
-                    <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-                </div>
-            </div>
-        </header>
-
-        <!-- NAV -->
-        <nav class="nav" id="nav">
-            <button class="active" data-tab="ongoing"><i class="fas fa-sync-alt"></i> Онгоинги</button>
-            <button data-tab="top"><i class="fas fa-trophy"></i> Топ-100</button>
-            <button data-tab="favorites"><i class="fas fa-heart"></i> Избранное <span class="badge" id="favCount">0</span></button>
-            <button data-tab="watched"><i class="fas fa-eye"></i> Просмотренные <span class="badge" id="watchedCount">0</span></button>
-            <button data-tab="search" id="searchTab"><i class="fas fa-search"></i> Поиск</button>
-        </nav>
-
-        <!-- STATS -->
-        <div class="stats">
-            <span id="currentTabLabel"><i class="fas fa-play-circle"></i> Онгоинги</span>
-            <span id="count"><i class="fas fa-list"></i> 0 аниме</span>
+<div class="wrap">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo" id="logoLink">
+            <i class="fas fa-film"></i>
+            <span>Stas<span>Anime</span></span>
         </div>
-
-        <!-- GRID -->
-        <div id="grid"></div>
-
-        <!-- ПЛЕЕР -->
-        <div id="player" class="hidden">
-            <div class="player-top">
-                <h2 id="playerTitle"><i class="fas fa-play-circle" style="color:#7c3aed;"></i> Название</h2>
-                <div class="btns">
-                    <button id="closePlayer" class="close"><i class="fas fa-times"></i></button>
-                </div>
+        <div class="header-right">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
+                <button id="searchBtn"><i class="fas fa-search"></i></button>
             </div>
-            <div class="player-controls">
-                <select id="episodeSelect"></select>
-                <select id="qualitySelect">
-                    <option value="1080">1080p</option>
-                    <option value="720" selected>720p</option>
-                    <option value="480">480p</option>
-                    <option value="360">360p</option>
-                </select>
-                <span class="status" id="sourceStatus"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
-                <button id="nextSourceBtn"><i class="fas fa-forward"></i> Следующий</button>
-                <button id="reloadBtn"><i class="fas fa-sync-alt"></i></button>
-                <button id="watchBtn" class="watch-btn"><i class="fas fa-check"></i> Просмотрено</button>
+            <div class="auth-btns" id="authBtns">
+                <button class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Вход</button>
+                <button class="btn-register" id="registerBtn"><i class="fas fa-user-plus"></i> Регистрация</button>
             </div>
-            <div class="player-wrapper">
-                <iframe id="playerFrame" src="" allowfullscreen></iframe>
+            <div class="auth-btns" id="userInfo" style="display:none;">
+                <span class="user-name" id="userNameDisplay"><i class="fas fa-user"></i> </span>
+                <button class="btn-profile" id="profileBtn"><i class="fas fa-id-card"></i></button>
+                <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
             </div>
-            <div id="statusMsg" class="msg info"><i class="fas fa-info-circle"></i> Выберите аниме</div>
         </div>
+    </header>
 
-        <footer class="footer">
-            <p><i class="fas fa-code"></i> Stas Anime · Данные AniList · Встроенный плеер</p>
-        </footer>
+    <!-- NAV -->
+    <nav class="nav" id="nav">
+        <button class="active" data-tab="ongoing"><i class="fas fa-sync-alt"></i> Онгоинги</button>
+        <button data-tab="top"><i class="fas fa-trophy"></i> Топ-100</button>
+        <button data-tab="favorites"><i class="fas fa-heart"></i> Избранное <span class="badge" id="favCount">0</span></button>
+        <button data-tab="watched"><i class="fas fa-eye"></i> Просмотренные <span class="badge" id="watchedCount">0</span></button>
+        <button data-tab="search" id="searchTab"><i class="fas fa-search"></i> Поиск</button>
+    </nav>
+
+    <!-- STATS -->
+    <div class="stats">
+        <span id="currentTabLabel"><i class="fas fa-play-circle"></i> Онгоинги</span>
+        <span id="count"><i class="fas fa-list"></i> 0 аниме</span>
     </div>
 
-    <!-- MODAL AUTH -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <button class="close-modal" id="closeModal"><i class="fas fa-times"></i></button>
-            <h2 id="modalTitle"><i class="fas fa-sign-in-alt"></i> Вход</h2>
-            <input type="text" id="modalUsername" placeholder="Имя пользователя">
-            <input type="password" id="modalPassword" placeholder="Пароль">
-            <button id="modalSubmit">Войти</button>
-            <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
-        </div>
-    </div>
+    <!-- GRID -->
+    <div id="grid"></div>
 
-    <!-- MODAL PROFILE -->
-    <div class="modal-overlay" id="profileModal">
-        <div class="modal profile-modal">
-            <button class="close-modal" id="closeProfile"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-id-card" style="color:#7c3aed;"></i> Профиль</h2>
-            <div class="profile-info">
-                <p><i class="fas fa-user"></i> <span id="profileUsername">Имя</span></p>
-                <p><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное: <span id="profileFavCount">0</span></p>
-                <p><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные: <span id="profileWatchedCount">0</span></p>
-            </div>
-            <div class="profile-lists">
-                <h3><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное</h3>
-                <div id="profileFavList" class="profile-list"></div>
-                <h3><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные</h3>
-                <div id="profileWatchedList" class="profile-list"></div>
+    <!-- PLAYER -->
+    <div id="player" class="hidden">
+        <div class="player-top">
+            <h2 id="playerTitle"><i class="fas fa-play-circle" style="color:#7c3aed;"></i> Название</h2>
+            <div class="btns">
+                <button id="closePlayer" class="close"><i class="fas fa-times"></i></button>
             </div>
         </div>
+        <div class="player-controls">
+            <select id="episodeSelect"></select>
+            <span class="status" id="sourceStatus"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
+            <button id="nextSourceBtn"><i class="fas fa-forward"></i> Следующий</button>
+            <button id="reloadBtn"><i class="fas fa-sync-alt"></i></button>
+            <button id="watchBtn" class="watch-btn"><i class="fas fa-check"></i> Просмотрено</button>
+        </div>
+        <div class="player-wrapper">
+            <iframe id="playerFrame" src="" allowfullscreen></iframe>
+        </div>
+        <div id="statusMsg" class="msg info"><i class="fas fa-info-circle"></i> Выберите аниме</div>
     </div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
+    <footer class="footer">
+        <p><i class="fas fa-code"></i> Stas Anime · Данные AniList · Встроенный плеер</p>
+    </footer>
+</div>
 
-    <script src="app.js"></script>
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-modal" id="closeModal"><i class="fas fa-times"></i></button>
+        <h2 id="modalTitle"><i class="fas fa-sign-in-alt"></i> Вход</h2>
+        <input type="text" id="modalUsername" placeholder="Имя пользователя">
+        <input type="password" id="modalPassword" placeholder="Пароль">
+        <button id="modalSubmit">Войти</button>
+        <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
+    </div>
+</div>
+
+<!-- MODAL PROFILE -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal profile-modal">
+        <button class="close-modal" id="closeProfile"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-id-card" style="color:#7c3aed;"></i> Профиль</h2>
+        <div class="profile-info">
+            <p><i class="fas fa-user"></i> <span id="profileUsername">Имя</span></p>
+            <p><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное: <span id="profileFavCount">0</span></p>
+            <p><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные: <span id="profileWatchedCount">0</span></p>
+        </div>
+        <div class="profile-lists">
+            <h3><i class="fas fa-heart" style="color:#ef4444;"></i> Избранное</h3>
+            <div id="profileFavList" class="profile-list"></div>
+            <h3><i class="fas fa-eye" style="color:#60a5fa;"></i> Просмотренные</h3>
+            <div id="profileWatchedList" class="profile-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
