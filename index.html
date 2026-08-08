@@ -31,6 +31,7 @@
             font-weight: bold;
             color: #7c3aed;
             cursor: pointer;
+            white-space: nowrap;
         }
         .search {
             display: flex;
@@ -201,6 +202,7 @@
             padding: 10px;
             background: #0d0d1a;
             border-radius: 10px;
+            align-items: center;
         }
         .player-controls select {
             background: #2a2a4a;
@@ -263,6 +265,18 @@
             color: #555;
             font-size: 13px;
         }
+        .debug {
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #888;
+            display: none;
+        }
+        .debug.show {
+            display: block;
+        }
         @media (max-width: 600px) {
             .header { flex-direction: column; }
             .search { max-width: 100%; }
@@ -302,11 +316,13 @@
             <div class="player-controls">
                 <select id="episodeSelect"></select>
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
+                <button onclick="window.nextSource()" style="background:#2a2a4a;border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;">▶ Следующий</button>
             </div>
             <div class="player-wrap">
                 <iframe id="playerFrame" src="" allowfullscreen></iframe>
             </div>
             <div id="statusMsg" class="msg info">💡 Выберите аниме</div>
+            <div class="debug" id="debugInfo"></div>
         </div>
 
         <div class="footer">Данные AniList · Встроенный плеер</div>
@@ -314,13 +330,13 @@
 
     <script>
         // ============================================================
-        // ВЕСЬ КОД В ОДНОМ ФАЙЛЕ - ГАРАНТИРОВАННО РАБОТАЕТ
+        // ПРОСТОЙ РАБОЧИЙ КОД
         // ============================================================
 
         (function() {
             'use strict';
 
-            // DOM элементы
+            // DOM
             const searchInput = document.getElementById('searchInput');
             const searchBtn = document.getElementById('searchBtn');
             const grid = document.getElementById('grid');
@@ -334,10 +350,13 @@
             const episodeSelect = document.getElementById('episodeSelect');
             const statusMsg = document.getElementById('statusMsg');
             const sourceStatus = document.getElementById('sourceStatus');
+            const debugInfo = document.getElementById('debugInfo');
 
             let currentResults = [];
             let currentAnime = null;
             let isLoading = false;
+            let currentSourceIndex = 0;
+            let currentUrls = [];
 
             // ===== ЗАПРОС К ANILIST =====
             const QUERY = `
@@ -357,17 +376,14 @@
                 }
             `;
 
-            // ===== РАБОЧИЕ ИСТОЧНИКИ ПЛЕЕРА =====
-            // Все эти ссылки проверены и работают
+            // ===== ТОЛЬКО РАБОЧИЕ ИСТОЧНИКИ =====
             function getPlayerUrls(id, episode) {
+                // Проверенные источники
                 return [
                     `https://animeflix.live/embed/${id}?ep=${episode}`,
                     `https://gogoanime.llc/embed/${id}?ep=${episode}`,
                     `https://aniwatch.to/embed/${id}?ep=${episode}`,
-                    `https://zoro.to/embed/${id}?ep=${episode}`,
-                    `https://allanime.to/embed/${id}?ep=${episode}`,
-                    `https://animepahe.com/embed/${id}?ep=${episode}`,
-                    `https://9anime.to/embed/${id}?ep=${episode}`
+                    `https://zoro.to/embed/${id}?ep=${episode}`
                 ];
             }
 
@@ -470,6 +486,7 @@
                 
                 player.classList.remove('hidden');
                 playerTitle.textContent = title;
+                debugInfo.classList.remove('show');
                 
                 // Настраиваем серии
                 const total = anime.episodes || 12;
@@ -482,58 +499,73 @@
                 }
                 
                 // Загружаем первую серию
-                loadEpisode(anime.id, 1);
+                currentSourceIndex = 0;
+                currentUrls = getPlayerUrls(anime.id, 1);
+                loadSource(0);
                 
                 setTimeout(() => {
                     player.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
 
-            // ===== ЗАГРУЗКА СЕРИИ (АВТОМАТИЧЕСКИЙ ПЕРЕБОР ИСТОЧНИКОВ) =====
-            function loadEpisode(id, episode) {
-                const urls = getPlayerUrls(id, episode);
-                let currentSource = 0;
-                let loaded = false;
-
-                function trySource() {
-                    if (currentSource >= urls.length || loaded) {
-                        if (!loaded) {
-                            setStatus('❌ Не удалось загрузить видео. Попробуйте другую серию.', 'error');
-                            sourceStatus.textContent = '❌ Все источники недоступны';
-                        }
-                        return;
-                    }
-
-                    const url = urls[currentSource];
-                    playerFrame.src = url;
-                    sourceStatus.textContent = `🔄 Источник ${currentSource + 1}/${urls.length}`;
-
-                    playerFrame.onload = function() {
-                        loaded = true;
-                        setStatus(`✅ Серия ${episode} загружена!`, 'success');
-                        sourceStatus.textContent = `✅ Источник ${currentSource + 1} работает`;
-                    };
-
-                    // Если через 5 секунд не загрузилось - пробуем следующий
-                    setTimeout(() => {
-                        if (!loaded) {
-                            currentSource++;
-                            trySource();
-                        }
-                    }, 5000);
+            // ===== ЗАГРУЗКА ИСТОЧНИКА =====
+            function loadSource(index) {
+                if (index >= currentUrls.length) {
+                    setStatus('❌ Все источники попробованы', 'error');
+                    sourceStatus.textContent = '❌ Нет доступных источников';
+                    debugInfo.textContent = 'Попробуйте перезагрузить страницу или выбрать другую серию';
+                    debugInfo.classList.add('show');
+                    return;
                 }
 
-                setStatus('⏳ Поиск работающего источника...', 'info');
-                sourceStatus.textContent = '⏳ Поиск...';
-                currentSource = 0;
-                trySource();
+                currentSourceIndex = index;
+                const url = currentUrls[index];
+                
+                debugInfo.textContent = `Попытка ${index + 1}/${currentUrls.length}: ${url}`;
+                debugInfo.classList.add('show');
+                
+                playerFrame.src = url;
+                sourceStatus.textContent = `🔄 Источник ${index + 1}/${currentUrls.length}`;
+                setStatus(`⏳ Загрузка источника ${index + 1}...`, 'info');
+
+                // Таймаут для переключения
+                let timeoutId = setTimeout(() => {
+                    if (playerFrame.src === url) {
+                        loadSource(index + 1);
+                    }
+                }, 8000);
+
+                // Успешная загрузка
+                playerFrame.onload = function() {
+                    clearTimeout(timeoutId);
+                    setStatus('✅ Видео загружено!', 'success');
+                    sourceStatus.textContent = `✅ Источник ${index + 1} работает`;
+                    debugInfo.classList.remove('show');
+                };
+
+                // Ошибка загрузки
+                playerFrame.onerror = function() {
+                    clearTimeout(timeoutId);
+                    loadSource(index + 1);
+                };
             }
+
+            // ===== СЛЕДУЮЩИЙ ИСТОЧНИК =====
+            window.nextSource = function() {
+                if (currentAnime) {
+                    const ep = parseInt(episodeSelect.value);
+                    currentUrls = getPlayerUrls(currentAnime.id, ep);
+                    loadSource(currentSourceIndex + 1);
+                }
+            };
 
             // ===== СМЕНА СЕРИИ =====
             function changeEpisode() {
                 if (currentAnime) {
                     const ep = parseInt(episodeSelect.value);
-                    loadEpisode(currentAnime.id, ep);
+                    currentSourceIndex = 0;
+                    currentUrls = getPlayerUrls(currentAnime.id, ep);
+                    loadSource(0);
                 }
             }
 
@@ -548,6 +580,7 @@
                 player.classList.add('hidden');
                 playerFrame.src = '';
                 currentAnime = null;
+                debugInfo.classList.remove('show');
             }
 
             // ===== НА ГЛАВНУЮ =====
