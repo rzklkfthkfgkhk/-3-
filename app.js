@@ -1,5 +1,5 @@
 // ============================================================
-// STAS ANIME - ПОЛНЫЙ САЙТ
+// STAS ANIME - ПОЛНАЯ ЛОГИКА
 // ============================================================
 
 (function() {
@@ -105,10 +105,10 @@
         const idx = favs.indexOf(id);
         if (idx > -1) {
             favs.splice(idx, 1);
-            showToast('💔 Убрано');
+            showToast('💔 Убрано из избранного');
         } else {
             favs.push(id);
-            showToast('❤️ Добавлено');
+            showToast('❤️ Добавлено в избранное');
         }
         currentUser.favorites = favs;
         saveUserData();
@@ -125,10 +125,10 @@
         const idx = watched.indexOf(id);
         if (idx > -1) {
             watched.splice(idx, 1);
-            showToast('👁️ Убрано');
+            showToast('👁️ Убрано из просмотренных');
         } else {
             watched.push(id);
-            showToast('👁️ Добавлено');
+            showToast('👁️ Добавлено в просмотренные');
         }
         currentUser.watched = watched;
         saveUserData();
@@ -136,8 +136,13 @@
         updateWatchBtn();
     }
 
-    function isFavorite(id) { return getFavorites().includes(id); }
-    function isWatched(id) { return getWatched().includes(id); }
+    function isFavorite(id) {
+        return getFavorites().includes(id);
+    }
+
+    function isWatched(id) {
+        return getWatched().includes(id);
+    }
 
     function updateWatchBtn() {
         if (currentAnime && watchBtn) {
@@ -170,18 +175,29 @@
         modalOverlay.classList.add('show');
     }
 
-    function closeModalFn() { modalOverlay.classList.remove('show'); }
+    function closeModalFn() {
+        modalOverlay.classList.remove('show');
+    }
 
     function handleAuth() {
         const username = modalUsername.value.trim();
         const password = modalPassword.value.trim();
-        if (!username || !password) { showToast('⚠️ Заполните все поля'); return; }
+
+        if (!username || !password) {
+            showToast('⚠️ Заполните все поля');
+            return;
+        }
+
         let users = JSON.parse(localStorage.getItem('animeUsers') || '[]');
 
         if (isLoginMode) {
             const user = users.find(u => u.username === username && u.password === password);
             if (user) {
-                currentUser = { username: user.username, favorites: user.favorites || [], watched: user.watched || [] };
+                currentUser = {
+                    username: user.username,
+                    favorites: user.favorites || [],
+                    watched: user.watched || []
+                };
                 localStorage.setItem('animeUser', JSON.stringify(currentUser));
                 updateAuthUI();
                 closeModalFn();
@@ -216,8 +232,12 @@
 
     // ===== PROFILE =====
     function openProfile() {
-        if (!currentUser) { showToast('⚠️ Войдите в аккаунт'); return; }
+        if (!currentUser) {
+            showToast('⚠️ Войдите в аккаунт');
+            return;
+        }
         profileUsername.textContent = currentUser.username;
+
         const favs = getFavorites();
         const watched = getWatched();
         profileFavCount.textContent = favs.length;
@@ -272,10 +292,13 @@
                 profileWatchedList.appendChild(div);
             });
         }
+
         profileModal.classList.add('show');
     }
 
-    function closeProfileFn() { profileModal.classList.remove('show'); }
+    function closeProfileFn() {
+        profileModal.classList.remove('show');
+    }
 
     // ===== ANILIST QUERY =====
     const ANILIST_QUERY = `
@@ -298,11 +321,16 @@
 
     // ===== FALLBACK =====
     const FALLBACK_ANIME = [
-        { id: 21, title: { romaji: 'One Piece' }, coverImage: { large: '' }, format: 'TV', episodes: 1000, status: 'RELEASING', averageScore: 85, genres: ['Action', 'Adventure'] },
-        { id: 16498, title: { romaji: 'Naruto' }, coverImage: { large: '' }, format: 'TV', episodes: 220, status: 'FINISHED', averageScore: 79, genres: ['Action', 'Adventure'] },
-        { id: 11061, title: { romaji: 'Attack on Titan' }, coverImage: { large: '' }, format: 'TV', episodes: 87, status: 'FINISHED', averageScore: 87, genres: ['Action', 'Drama'] },
-        { id: 5114, title: { romaji: 'Fullmetal Alchemist: Brotherhood' }, coverImage: { large: '' }, format: 'TV', episodes: 64, status: 'FINISHED', averageScore: 90, genres: ['Action', 'Adventure'] },
-        { id: 30276, title: { romaji: 'One Punch Man' }, coverImage: { large: '' }, format: 'TV', episodes: 12, status: 'FINISHED', averageScore: 83, genres: ['Action', 'Comedy'] }
+        { id: 21, title: { romaji: 'One Piece' }, coverImage: { large: '' }, format: 'TV', episodes: 1000,
+            status: 'RELEASING', averageScore: 85, genres: ['Action', 'Adventure'] },
+        { id: 16498, title: { romaji: 'Naruto' }, coverImage: { large: '' }, format: 'TV', episodes: 220,
+            status: 'FINISHED', averageScore: 79, genres: ['Action', 'Adventure'] },
+        { id: 11061, title: { romaji: 'Attack on Titan' }, coverImage: { large: '' }, format: 'TV', episodes: 87,
+            status: 'FINISHED', averageScore: 87, genres: ['Action', 'Drama'] },
+        { id: 5114, title: { romaji: 'Fullmetal Alchemist: Brotherhood' }, coverImage: { large: '' }, format: 'TV',
+            episodes: 64, status: 'FINISHED', averageScore: 90, genres: ['Action', 'Adventure'] },
+        { id: 30276, title: { romaji: 'One Punch Man' }, coverImage: { large: '' }, format: 'TV', episodes: 12,
+            status: 'FINISHED', averageScore: 83, genres: ['Action', 'Comedy'] }
     ];
 
     function loadFallback() {
@@ -367,7 +395,7 @@
         const ep = parseInt(episodeSelect.value) || 1;
         sourceStatus.textContent = '🔍 Поиск видео...';
         playerStatus.textContent = '⏳ Ищем видео...';
-        playerStatus.className = 'player-status';
+        playerStatus.className = 'player-status info';
 
         try {
             const videoUrl = await searchVideos(animeTitle, ep);
@@ -412,7 +440,7 @@
         playerFrame.src = '';
         currentAnime = null;
         playerStatus.textContent = '💡 Выберите аниме';
-        playerStatus.className = 'player-status';
+        playerStatus.className = 'player-status info';
     }
 
     // ===== RENDER CARDS =====
@@ -422,7 +450,7 @@
                 <div class="empty">
                     <i class="fas fa-inbox"></i>
                     <h3>Ничего не найдено</h3>
-                    <button onclick="loadFallback()" style="margin-top:12px;padding:8px 20px;border-radius:20px;border:none;background:#7c3aed;color:#fff;cursor:pointer;">📺 Показать примеры</button>
+                    <button onclick="loadFallback()">📺 Показать примеры</button>
                 </div>
             `;
             return;
@@ -436,7 +464,8 @@
             const score = anime.averageScore ? Math.round(anime.averageScore / 10) : '—';
             const episodes = anime.episodes || '?';
             const status = anime.status || 'UNKNOWN';
-            const statusLabel = status === 'RELEASING' ? '🟢 Выходит' : status === 'FINISHED' ? '🔵 Завершён' : '⚪ Скоро';
+            const statusLabel = status === 'RELEASING' ? '🟢 Выходит' : status === 'FINISHED' ? '🔵 Завершён' :
+                '⚪ Скоро';
             const dotClass = status === 'RELEASING' ? 'green' : status === 'FINISHED' ? 'blue' : 'gray';
             const fav = isFavorite(anime.id);
             const watched = isWatched(anime.id);
@@ -530,22 +559,22 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: `
-                                query ($ids: [Int]) {
-                                    Page(page: 1, perPage: 50) {
-                                        media(id_in: $ids, type: ANIME, sort: [POPULARITY_DESC]) {
-                                            id
-                                            title { romaji english native }
-                                            coverImage { large extraLarge }
-                                            format
-                                            episodes
-                                            status
-                                            averageScore
-                                            genres
-                                            seasonYear
-                                        }
+                            query ($ids: [Int]) {
+                                Page(page: 1, perPage: 50) {
+                                    media(id_in: $ids, type: ANIME, sort: [POPULARITY_DESC]) {
+                                        id
+                                        title { romaji english native }
+                                        coverImage { large extraLarge }
+                                        format
+                                        episodes
+                                        status
+                                        averageScore
+                                        genres
+                                        seasonYear
                                     }
                                 }
-                            `,
+                            }
+                        `,
                         variables: { ids: favs }
                     })
                 });
@@ -572,22 +601,22 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: `
-                                query ($ids: [Int]) {
-                                    Page(page: 1, perPage: 50) {
-                                        media(id_in: $ids, type: ANIME, sort: [POPULARITY_DESC]) {
-                                            id
-                                            title { romaji english native }
-                                            coverImage { large extraLarge }
-                                            format
-                                            episodes
-                                            status
-                                            averageScore
-                                            genres
-                                            seasonYear
-                                        }
+                            query ($ids: [Int]) {
+                                Page(page: 1, perPage: 50) {
+                                    media(id_in: $ids, type: ANIME, sort: [POPULARITY_DESC]) {
+                                        id
+                                        title { romaji english native }
+                                        coverImage { large extraLarge }
+                                        format
+                                        episodes
+                                        status
+                                        averageScore
+                                        genres
+                                        seasonYear
                                     }
                                 }
-                            `,
+                            }
+                        `,
                         variables: { ids: watchedList }
                     })
                 });
@@ -629,7 +658,7 @@
                     <div class="empty">
                         <i class="fas fa-inbox"></i>
                         <h3>Ничего не найдено</h3>
-                        <button onclick="loadFallback()" style="margin-top:12px;padding:8px 20px;border-radius:20px;border:none;background:#7c3aed;color:#fff;cursor:pointer;">📺 Показать примеры</button>
+                        <button onclick="loadFallback()">📺 Показать примеры</button>
                     </div>
                 `;
                 count.textContent = '0';
@@ -649,7 +678,7 @@
                     <i class="fas fa-exclamation-triangle"></i>
                     <h3>Ошибка загрузки</h3>
                     <p>${err.message}</p>
-                    <button onclick="loadFallback()" style="margin-top:12px;padding:8px 20px;border-radius:20px;border:none;background:#7c3aed;color:#fff;cursor:pointer;">📺 Показать примеры</button>
+                    <button onclick="loadFallback()">📺 Показать примеры</button>
                 </div>
             `;
             count.textContent = '⚠️ Ошибка';
@@ -662,7 +691,9 @@
         const tab = currentTab;
         if (tab === 'search') {
             const q = searchInput.value.trim();
-            if (q) { loadAnime('search', q); } else {
+            if (q) {
+                loadAnime('search', q);
+            } else {
                 grid.innerHTML = `
                     <div class="empty">
                         <i class="fas fa-search"></i>
@@ -690,7 +721,10 @@
         if (!btn) return;
         const tab = btn.dataset.tab;
         if (!tab) return;
-        if (tab === 'search') { searchInput.focus(); return; }
+        if (tab === 'search') {
+            searchInput.focus();
+            return;
+        }
         document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentTab = tab;
@@ -741,11 +775,21 @@
     closeModal.addEventListener('click', closeModalFn);
     closeProfile.addEventListener('click', closeProfileFn);
     modalSubmit.addEventListener('click', handleAuth);
-    modalSwitch.addEventListener('click', () => { openModal(isLoginMode ? 'register' : 'login'); });
-    modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModalFn(); });
-    profileModal.addEventListener('click', function(e) { if (e.target === this) closeProfileFn(); });
-    modalUsername.addEventListener('keypress', function(e) { if (e.key === 'Enter') modalPassword.focus(); });
-    modalPassword.addEventListener('keypress', function(e) { if (e.key === 'Enter') handleAuth(); });
+    modalSwitch.addEventListener('click', () => {
+        openModal(isLoginMode ? 'register' : 'login');
+    });
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === this) closeModalFn();
+    });
+    profileModal.addEventListener('click', function(e) {
+        if (e.target === this) closeProfileFn();
+    });
+    modalUsername.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') modalPassword.focus();
+    });
+    modalPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleAuth();
+    });
 
     // ===== LOGO =====
     logo.addEventListener('click', function() {
@@ -769,7 +813,9 @@
     // ===== INIT =====
     updateAuthUI();
     updateBadges();
-    setTimeout(() => { loadAnime('ongoing'); }, 300);
+    setTimeout(() => {
+        loadAnime('ongoing');
+    }, 300);
     setTimeout(() => {
         if (currentResults.length === 0) loadFallback();
     }, 4000);
