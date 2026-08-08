@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kodik Player</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0d0d1a;
             color: #fff;
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .wrap {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        .wrap { max-width: 1100px; margin: 0 auto; }
         .header {
             display: flex;
             gap: 20px;
@@ -49,9 +42,7 @@
             font-size: 16px;
             outline: none;
         }
-        .search input:focus {
-            border-color: #7c3aed;
-        }
+        .search input:focus { border-color: #7c3aed; }
         .search button {
             padding: 12px 24px;
             border-radius: 30px;
@@ -61,9 +52,7 @@
             font-size: 16px;
             cursor: pointer;
         }
-        .search button:hover {
-            background: #6d28d9;
-        }
+        .search button:hover { background: #6d28d9; }
         .stats {
             display: flex;
             gap: 30px;
@@ -73,9 +62,7 @@
             color: #888;
             font-size: 14px;
         }
-        .stats span:last-child {
-            color: #fff;
-        }
+        .stats span:last-child { color: #fff; }
         #grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -100,9 +87,7 @@
             object-fit: cover;
             display: block;
         }
-        .card-body {
-            padding: 12px;
-        }
+        .card-body { padding: 12px; }
         .card-body h3 {
             font-size: 14px;
             margin-bottom: 4px;
@@ -130,10 +115,7 @@
             padding: 60px 20px;
             color: #666;
         }
-        .empty h3 {
-            font-size: 22px;
-            margin-top: 10px;
-        }
+        .empty h3 { font-size: 22px; margin-top: 10px; }
         .loading {
             grid-column: 1 / -1;
             text-align: center;
@@ -148,11 +130,7 @@
             animation: spin 0.8s linear infinite;
             margin: 0 auto;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         #player {
             margin-top: 30px;
@@ -161,22 +139,15 @@
             padding: 20px;
             border: 1px solid #2a2a4a;
         }
-        #player.hidden {
-            display: none;
-        }
+        #player.hidden { display: none; }
         .player-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
-        .player-top h2 {
-            font-size: 18px;
-        }
-        .player-top .btns {
-            display: flex;
-            gap: 8px;
-        }
+        .player-top h2 { font-size: 18px; }
+        .player-top .btns { display: flex; gap: 8px; }
         .player-top .btns button {
             background: #2a2a4a;
             border: none;
@@ -188,12 +159,8 @@
             font-size: 16px;
             transition: 0.3s;
         }
-        .player-top .btns button:hover {
-            background: #3a3a5a;
-        }
-        .player-top .btns .close:hover {
-            background: #dc2626;
-        }
+        .player-top .btns button:hover { background: #3a3a5a; }
+        .player-top .btns .close:hover { background: #dc2626; }
         .player-controls {
             display: flex;
             gap: 15px;
@@ -275,9 +242,7 @@
             font-size: 13px;
             transition: 0.3s;
         }
-        .btn-reload:hover {
-            background: #3a3a5a;
-        }
+        .btn-reload:hover { background: #3a3a5a; }
         .debug {
             margin-top: 10px;
             padding: 10px;
@@ -287,21 +252,15 @@
             color: #888;
             display: none;
             word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
         }
-        .debug.show {
-            display: block;
-        }
+        .debug.show { display: block; }
         @media (max-width: 600px) {
-            .header {
-                flex-direction: column;
-            }
-            .search {
-                max-width: 100%;
-            }
-            #grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 12px;
-            }
+            .header { flex-direction: column; }
+            .search { max-width: 100%; }
+            #grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         }
     </style>
 </head>
@@ -332,6 +291,11 @@
             </div>
             <div class="player-controls">
                 <select id="episodeSelect"></select>
+                <select id="qualitySelect">
+                    <option value="720">720p</option>
+                    <option value="480">480p</option>
+                    <option value="360">360p</option>
+                </select>
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
                 <button class="btn-reload" id="reloadBtn">🔄 Обновить</button>
             </div>
@@ -347,7 +311,7 @@
 
     <script>
         // ============================================================
-        // ПРОСТОЙ РАБОЧИЙ КОД
+        // ПРОСТОЙ РАБОЧИЙ КОД (БЕЗ NPM)
         // ============================================================
 
         (function() {
@@ -368,6 +332,7 @@
             const playerFrame = document.getElementById('playerFrame');
             const closePlayer = document.getElementById('closePlayer');
             const episodeSelect = document.getElementById('episodeSelect');
+            const qualitySelect = document.getElementById('qualitySelect');
             const statusMsg = document.getElementById('statusMsg');
             const sourceStatus = document.getElementById('sourceStatus');
             const reloadBtn = document.getElementById('reloadBtn');
@@ -376,6 +341,7 @@
             let currentResults = [];
             let currentAnime = null;
             let isLoading = false;
+            let currentMaterial = null;
 
             // ===== ЗАПРОС К ANILIST =====
             const QUERY = `
@@ -398,49 +364,63 @@
             // ===== ПОИСК В KODIK =====
             async function searchKodik(title) {
                 try {
-                    // Ищем по названию
                     const url = `https://kodikapi.com/search?token=${KODIK_TOKEN}&title=${encodeURIComponent(title)}&limit=1`;
-                    debugInfo.textContent = `Запрос: ${url}`;
+                    debugInfo.textContent = `🔍 Запрос: ${url}\n`;
                     debugInfo.classList.add('show');
 
                     const response = await fetch(url);
                     const data = await response.json();
 
-                    debugInfo.textContent += `\nОтвет: ${JSON.stringify(data, null, 2)}`;
+                    debugInfo.textContent += `📦 Ответ: ${JSON.stringify(data, null, 2)}`;
 
                     if (data && data.results && data.results.length > 0) {
                         return data.results[0];
                     }
                     return null;
                 } catch (error) {
-                    console.error('Kodik search error:', error);
-                    debugInfo.textContent += `\nОшибка: ${error.message}`;
+                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
                     return null;
                 }
             }
 
-            // ===== ПОЛУЧИТЬ ССЫЛКУ НА ПЛЕЕР =====
-            function getPlayerUrl(material, episode) {
-                if (!material) return null;
+            // ===== ПОИСК ПО ID =====
+            async function searchKodikById(id) {
+                try {
+                    const url = `https://kodikapi.com/search?token=${KODIK_TOKEN}&shikimori_id=${id}`;
+                    debugInfo.textContent = `🔍 Запрос по ID: ${url}\n`;
+                    debugInfo.classList.add('show');
 
-                // Пробуем разные варианты
-                if (material.link) {
-                    let url = material.link;
-                    if (url.startsWith('//')) {
-                        url = 'https:' + url;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    debugInfo.textContent += `📦 Ответ: ${JSON.stringify(data, null, 2)}`;
+
+                    if (data && data.results && data.results.length > 0) {
+                        return data.results[0];
                     }
-                    return url;
+                    return null;
+                } catch (error) {
+                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
+                    return null;
                 }
+            }
 
-                if (material.id) {
-                    return `https://kodik.info/player/${material.id}/${episode}`;
+            // ===== ПОЛУЧИТЬ ВИДЕО-ССЫЛКИ =====
+            async function getVideoLinks(link) {
+                try {
+                    const url = `https://kodikapi.com/get-links?token=${KODIK_TOKEN}&link=${encodeURIComponent(link)}`;
+                    debugInfo.textContent += `\n📹 Запрос ссылок: ${url}`;
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    debugInfo.textContent += `\n📦 Ответ: ${JSON.stringify(data, null, 2)}`;
+
+                    return data;
+                } catch (error) {
+                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
+                    return null;
                 }
-
-                if (material.hash) {
-                    return `https://kodik.info/player/${material.hash}/${episode}`;
-                }
-
-                return null;
             }
 
             // ===== ПОИСК =====
@@ -557,54 +537,112 @@
 
                 setStatus(`⏳ Поиск в Kodik...`, 'info');
                 sourceStatus.textContent = `🔍 Поиск...`;
-                debugInfo.textContent = `Ищем: ${animeTitle}`;
+                debugInfo.textContent = `📺 ${animeTitle} (ID: ${anime.id})\n`;
                 debugInfo.classList.add('show');
 
                 try {
-                    // Ищем в Kodik
-                    const material = await searchKodik(animeTitle);
+                    // Ищем сначала по ID
+                    let material = await searchKodikById(anime.id);
+                    
+                    if (!material) {
+                        debugInfo.textContent += `\n⚠️ По ID не найдено, ищем по названию...`;
+                        material = await searchKodik(animeTitle);
+                    }
 
                     if (material) {
-                        debugInfo.textContent += `\nНайдено: ${material.title || material.id}`;
+                        currentMaterial = material;
+                        debugInfo.textContent += `\n✅ Найдено: ${material.title || material.id}`;
                         setStatus(`✅ Найдено в Kodik!`, 'success');
-                        sourceStatus.textContent = `🎬 Загрузка...`;
+                        sourceStatus.textContent = `📹 Получение видео...`;
 
-                        const ep = parseInt(episodeSelect.value) || 1;
-                        const playerUrl = getPlayerUrl(material, ep);
-
-                        if (playerUrl) {
-                            debugInfo.textContent += `\nПлеер: ${playerUrl}`;
-                            playerFrame.src = playerUrl;
-
-                            playerFrame.onload = function() {
-                                setStatus(`✅ Видео загружено!`, 'success');
-                                sourceStatus.textContent = '✅ Kodik работает';
-                            };
-
-                            playerFrame.onerror = function() {
-                                setStatus('❌ Ошибка плеера', 'error');
-                                sourceStatus.textContent = '❌ Ошибка';
-                            };
+                        if (material.link) {
+                            // Получаем видео-ссылки
+                            const links = await getVideoLinks(material.link);
+                            
+                            if (links && Object.keys(links).length > 0) {
+                                // Воспроизводим
+                                playVideo(links);
+                            } else {
+                                // Если не получили ссылки - пробуем прямой плеер
+                                const playerUrl = material.link.startsWith('//') ? 'https:' + material.link : material.link;
+                                playerFrame.src = playerUrl;
+                                setStatus(`✅ Загружен плеер Kodik`, 'success');
+                                sourceStatus.textContent = '🎬 Плеер';
+                            }
                         } else {
-                            setStatus('❌ Не удалось получить ссылку', 'error');
-                            sourceStatus.textContent = '❌ Нет ссылки';
+                            setStatus('❌ Нет ссылки на материал', 'error');
+                            sourceStatus.textContent = '❌ Ошибка';
                         }
                     } else {
                         setStatus(`❌ Не найдено в Kodik`, 'error');
                         sourceStatus.textContent = '❌ Не найдено';
-                        debugInfo.textContent += `\nНичего не найдено`;
+                        debugInfo.textContent += `\n❌ Ничего не найдено`;
                     }
 
                 } catch (error) {
                     console.error('Open player error:', error);
                     setStatus(`❌ Ошибка: ${error.message}`, 'error');
                     sourceStatus.textContent = '❌ Ошибка';
-                    debugInfo.textContent += `\nОшибка: ${error.message}`;
+                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
                 }
 
                 setTimeout(() => {
                     player.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
+            }
+
+            // ===== ВОСПРОИЗВЕДЕНИЕ ВИДЕО =====
+            function playVideo(links) {
+                const qualities = Object.keys(links).sort((a, b) => parseInt(a) - parseInt(b));
+                
+                if (qualities.length === 0) {
+                    setStatus('❌ Нет доступных качеств', 'error');
+                    return;
+                }
+
+                // Обновляем select качества
+                qualitySelect.innerHTML = '';
+                qualities.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q;
+                    opt.textContent = `${q}p`;
+                    qualitySelect.appendChild(opt);
+                });
+
+                // Выбираем лучшее качество
+                const bestQuality = qualities[qualities.length - 1];
+                qualitySelect.value = bestQuality;
+
+                // Получаем ссылку
+                let videoUrl = links[bestQuality][0].src;
+                if (videoUrl.startsWith('//')) {
+                    videoUrl = 'https:' + videoUrl;
+                }
+
+                debugInfo.textContent += `\n▶️ Качество: ${bestQuality}p`;
+                debugInfo.textContent += `\n🔗 Ссылка: ${videoUrl}`;
+
+                // Загружаем в iframe
+                playerFrame.src = videoUrl;
+                setStatus(`▶️ Воспроизведение ${bestQuality}p`, 'success');
+                sourceStatus.textContent = `🎬 ${bestQuality}p`;
+            }
+
+            // ===== СМЕНА КАЧЕСТВА =====
+            async function changeQuality() {
+                if (currentMaterial && currentMaterial.link) {
+                    const links = await getVideoLinks(currentMaterial.link);
+                    if (links) {
+                        const quality = qualitySelect.value;
+                        let videoUrl = links[quality][0].src;
+                        if (videoUrl.startsWith('//')) {
+                            videoUrl = 'https:' + videoUrl;
+                        }
+                        playerFrame.src = videoUrl;
+                        setStatus(`▶️ ${quality}p`, 'success');
+                        sourceStatus.textContent = `🎬 ${quality}p`;
+                    }
+                }
             }
 
             // ===== СМЕНА СЕРИИ =====
@@ -634,6 +672,7 @@
                 player.classList.add('hidden');
                 playerFrame.src = '';
                 currentAnime = null;
+                currentMaterial = null;
                 debugInfo.classList.remove('show');
             }
 
@@ -690,6 +729,7 @@
 
             closePlayer.addEventListener('click', closePlayerFn);
             episodeSelect.addEventListener('change', changeEpisode);
+            qualitySelect.addEventListener('change', changeQuality);
             reloadBtn.addEventListener('click', reloadPlayer);
 
             logo.addEventListener('click', (e) => {
