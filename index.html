@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kodik Player</title>
+    <title>AnimePlayer - HTML5 Video</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -187,21 +187,62 @@
             align-items: center;
             gap: 8px;
         }
-        .player-wrap {
-            position: relative;
+        /* ===== HTML5 VIDEO ПЛЕЕР ===== */
+        .video-container {
             width: 100%;
-            padding-top: 56.25%;
             background: #0d0d1a;
             border-radius: 12px;
             overflow: hidden;
+            position: relative;
         }
-        .player-wrap iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .video-container video {
             width: 100%;
-            height: 100%;
-            border: 0;
+            max-height: 70vh;
+            display: block;
+            background: #000;
+        }
+        /* Кастомные элементы управления */
+        .video-controls-custom {
+            display: flex;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #0d0d1a;
+            align-items: center;
+            flex-wrap: wrap;
+            border-top: 1px solid #2a2a4a;
+        }
+        .video-controls-custom button {
+            background: #2a2a4a;
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .video-controls-custom button:hover { background: #3a3a5a; }
+        .video-controls-custom input[type="range"] {
+            flex: 1;
+            min-width: 100px;
+            accent-color: #7c3aed;
+            background: #2a2a4a;
+            height: 4px;
+            border-radius: 4px;
+            -webkit-appearance: none;
+        }
+        .video-controls-custom input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #7c3aed;
+            cursor: pointer;
+        }
+        .video-controls-custom .time {
+            color: #888;
+            font-size: 13px;
+            min-width: 100px;
         }
         .msg {
             padding: 10px 14px;
@@ -252,7 +293,7 @@
             color: #888;
             display: none;
             word-break: break-all;
-            max-height: 200px;
+            max-height: 150px;
             overflow-y: auto;
             white-space: pre-wrap;
         }
@@ -276,7 +317,7 @@
 
         <div class="stats">
             <span>📊 AniList</span>
-            <span>🎥 Kodik</span>
+            <span>🎥 HTML5 Video</span>
             <span id="count">0</span>
         </div>
 
@@ -299,23 +340,66 @@
                 <span class="status" id="sourceStatus">⏳ Загрузка...</span>
                 <button class="btn-reload" id="reloadBtn">🔄 Обновить</button>
             </div>
-            <div class="player-wrap">
-                <iframe id="playerFrame" src="" allowfullscreen></iframe>
+
+            <!-- ===== HTML5 VIDEO ПЛЕЕР ===== -->
+            <div class="video-container">
+                <video id="videoPlayer" controls autoplay>
+                    <source id="videoSource" src="" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+                <div class="video-controls-custom">
+                    <button id="playBtn">▶️</button>
+                    <span class="time" id="timeDisplay">00:00 / 00:00</span>
+                    <input type="range" id="progressBar" value="0" step="0.01">
+                    <button id="fullscreenBtn">⛶</button>
+                </div>
             </div>
+
             <div id="statusMsg" class="msg info">💡 Выберите аниме</div>
             <div class="debug" id="debugInfo"></div>
         </div>
 
-        <div class="footer">AniList · Kodik</div>
+        <div class="footer">AniList · HTML5 Video</div>
     </div>
 
     <script>
         // ============================================================
-        // БРАУЗЕРНАЯ ВЕРСИЯ KODIK (БЕЗ NPM)
+        // HTML5 VIDEO ПЛЕЕР
         // ============================================================
 
         (function() {
             'use strict';
+
+            // DOM
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const grid = document.getElementById('grid');
+            const count = document.getElementById('count');
+            const logo = document.getElementById('logoLink');
+
+            const player = document.getElementById('player');
+            const playerTitle = document.getElementById('playerTitle');
+            const closePlayer = document.getElementById('closePlayer');
+            const episodeSelect = document.getElementById('episodeSelect');
+            const qualitySelect = document.getElementById('qualitySelect');
+            const statusMsg = document.getElementById('statusMsg');
+            const sourceStatus = document.getElementById('sourceStatus');
+            const reloadBtn = document.getElementById('reloadBtn');
+            const debugInfo = document.getElementById('debugInfo');
+
+            // Video элементы
+            const video = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const playBtn = document.getElementById('playBtn');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const progressBar = document.getElementById('progressBar');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+            let currentResults = [];
+            let currentAnime = null;
+            let isLoading = false;
+            let currentMaterial = null;
+            let currentVideoLinks = null;
 
             // ===== ПОЛУЧИТЬ ПУБЛИЧНЫЙ ТОКЕН =====
             async function getPublicToken() {
@@ -329,7 +413,6 @@
                 }
             }
 
-            // ===== КЛИЕНТ KODIK =====
             let kodikToken = null;
 
             async function getKodikToken() {
@@ -339,7 +422,6 @@
                 return kodikToken;
             }
 
-            // ===== ЗАПРОС К KODIK API =====
             async function kodikRequest(endpoint, params = {}) {
                 const token = await getKodikToken();
                 if (!token) {
@@ -359,29 +441,6 @@
                 }
                 return response.json();
             }
-
-            // DOM
-            const searchInput = document.getElementById('searchInput');
-            const searchBtn = document.getElementById('searchBtn');
-            const grid = document.getElementById('grid');
-            const count = document.getElementById('count');
-            const logo = document.getElementById('logoLink');
-
-            const player = document.getElementById('player');
-            const playerTitle = document.getElementById('playerTitle');
-            const playerFrame = document.getElementById('playerFrame');
-            const closePlayer = document.getElementById('closePlayer');
-            const episodeSelect = document.getElementById('episodeSelect');
-            const qualitySelect = document.getElementById('qualitySelect');
-            const statusMsg = document.getElementById('statusMsg');
-            const sourceStatus = document.getElementById('sourceStatus');
-            const reloadBtn = document.getElementById('reloadBtn');
-            const debugInfo = document.getElementById('debugInfo');
-
-            let currentResults = [];
-            let currentAnime = null;
-            let isLoading = false;
-            let currentMaterial = null;
 
             // ===== ЗАПРОС К ANILIST =====
             const QUERY = `
@@ -404,62 +463,40 @@
             // ===== ПОИСК В KODIK =====
             async function searchKodik(title) {
                 try {
-                    debugInfo.textContent = `🔍 Поиск: "${title}"\n`;
-                    debugInfo.classList.add('show');
-
                     const data = await kodikRequest('search', {
                         title: title,
                         limit: 1
                     });
-
-                    debugInfo.textContent += `📦 Ответ: ${JSON.stringify(data, null, 2)}`;
-
                     if (data && data.results && data.results.length > 0) {
                         return data.results[0];
                     }
                     return null;
                 } catch (error) {
-                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
                     return null;
                 }
             }
 
-            // ===== ПОИСК ПО ID =====
             async function searchKodikById(id) {
                 try {
-                    debugInfo.textContent = `🔍 Поиск по ID: ${id}\n`;
-                    debugInfo.classList.add('show');
-
                     const data = await kodikRequest('search', {
                         shikimori_id: id
                     });
-
-                    debugInfo.textContent += `📦 Ответ: ${JSON.stringify(data, null, 2)}`;
-
                     if (data && data.results && data.results.length > 0) {
                         return data.results[0];
                     }
                     return null;
                 } catch (error) {
-                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
                     return null;
                 }
             }
 
-            // ===== ПОЛУЧИТЬ ВИДЕО-ССЫЛКИ =====
             async function getVideoLinks(link) {
                 try {
-                    debugInfo.textContent += `\n📹 Получение видео...`;
-
                     const data = await kodikRequest('get-links', {
                         link: link
                     });
-
-                    debugInfo.textContent += `\n📦 Ответ: ${JSON.stringify(data, null, 2)}`;
-
                     return data;
                 } catch (error) {
-                    debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
                     return null;
                 }
             }
@@ -559,6 +596,44 @@
                 });
             }
 
+            // ===== ВОСПРОИЗВЕДЕНИЕ ВИДЕО В HTML5 ПЛЕЕРЕ =====
+            function playVideoInHTML5(links) {
+                const qualities = Object.keys(links).sort((a, b) => parseInt(a) - parseInt(b));
+                
+                if (qualities.length === 0) {
+                    setStatus('❌ Нет доступных качеств', 'error');
+                    return;
+                }
+
+                // Обновляем select качества
+                qualitySelect.innerHTML = '';
+                qualities.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q;
+                    opt.textContent = `${q}p`;
+                    qualitySelect.appendChild(opt);
+                });
+
+                const bestQuality = qualities[qualities.length - 1];
+                qualitySelect.value = bestQuality;
+
+                let videoUrl = links[bestQuality][0].src;
+                if (videoUrl.startsWith('//')) {
+                    videoUrl = 'https:' + videoUrl;
+                }
+
+                debugInfo.textContent = `▶️ Качество: ${bestQuality}p\n🔗 ${videoUrl}`;
+                debugInfo.classList.add('show');
+
+                // Загружаем видео в HTML5 плеер
+                videoSource.src = videoUrl;
+                video.load();
+                video.play();
+
+                setStatus(`▶️ Воспроизведение ${bestQuality}p`, 'success');
+                sourceStatus.textContent = `🎬 ${bestQuality}p`;
+            }
+
             // ===== ОТКРЫТЬ ПЛЕЕР =====
             async function openPlayer(anime, title) {
                 currentAnime = anime;
@@ -582,7 +657,6 @@
                 debugInfo.classList.add('show');
 
                 try {
-                    // Ищем сначала по ID
                     let material = await searchKodikById(anime.id);
                     
                     if (!material) {
@@ -597,20 +671,14 @@
                         sourceStatus.textContent = `📹 Получение видео...`;
 
                         if (material.link) {
-                            // Получаем видео-ссылки
                             const links = await getVideoLinks(material.link);
                             
                             if (links && Object.keys(links).length > 0) {
-                                playVideo(links);
+                                currentVideoLinks = links;
+                                playVideoInHTML5(links);
                             } else {
-                                // Если не получили ссылки - пробуем прямой плеер
-                                let playerUrl = material.link;
-                                if (playerUrl.startsWith('//')) {
-                                    playerUrl = 'https:' + playerUrl;
-                                }
-                                playerFrame.src = playerUrl;
-                                setStatus(`✅ Загружен плеер Kodik`, 'success');
-                                sourceStatus.textContent = '🎬 Плеер';
+                                setStatus('❌ Не удалось получить видео', 'error');
+                                sourceStatus.textContent = '❌ Ошибка';
                             }
                         } else {
                             setStatus('❌ Нет ссылки на материал', 'error');
@@ -634,39 +702,6 @@
                 }, 100);
             }
 
-            // ===== ВОСПРОИЗВЕДЕНИЕ ВИДЕО =====
-            function playVideo(links) {
-                const qualities = Object.keys(links).sort((a, b) => parseInt(a) - parseInt(b));
-                
-                if (qualities.length === 0) {
-                    setStatus('❌ Нет доступных качеств', 'error');
-                    return;
-                }
-
-                qualitySelect.innerHTML = '';
-                qualities.forEach(q => {
-                    const opt = document.createElement('option');
-                    opt.value = q;
-                    opt.textContent = `${q}p`;
-                    qualitySelect.appendChild(opt);
-                });
-
-                const bestQuality = qualities[qualities.length - 1];
-                qualitySelect.value = bestQuality;
-
-                let videoUrl = links[bestQuality][0].src;
-                if (videoUrl.startsWith('//')) {
-                    videoUrl = 'https:' + videoUrl;
-                }
-
-                debugInfo.textContent += `\n▶️ Качество: ${bestQuality}p`;
-                debugInfo.textContent += `\n🔗 Ссылка: ${videoUrl}`;
-
-                playerFrame.src = videoUrl;
-                setStatus(`▶️ Воспроизведение ${bestQuality}p`, 'success');
-                sourceStatus.textContent = `🎬 ${bestQuality}p`;
-            }
-
             // ===== СМЕНА КАЧЕСТВА =====
             async function changeQuality() {
                 if (currentMaterial && currentMaterial.link) {
@@ -677,7 +712,9 @@
                         if (videoUrl.startsWith('//')) {
                             videoUrl = 'https:' + videoUrl;
                         }
-                        playerFrame.src = videoUrl;
+                        videoSource.src = videoUrl;
+                        video.load();
+                        video.play();
                         setStatus(`▶️ ${quality}p`, 'success');
                         sourceStatus.textContent = `🎬 ${quality}p`;
                     }
@@ -709,9 +746,11 @@
             // ===== ЗАКРЫТЬ =====
             function closePlayerFn() {
                 player.classList.add('hidden');
-                playerFrame.src = '';
+                video.pause();
+                video.src = '';
                 currentAnime = null;
                 currentMaterial = null;
+                currentVideoLinks = null;
                 debugInfo.classList.remove('show');
             }
 
@@ -757,6 +796,47 @@
                 return d.innerHTML;
             }
 
+            // ===== УПРАВЛЕНИЕ ВИДЕО =====
+            // Play/Pause
+            playBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                    playBtn.textContent = '⏸️';
+                } else {
+                    video.pause();
+                    playBtn.textContent = '▶️';
+                }
+            });
+
+            video.addEventListener('play', () => playBtn.textContent = '⏸️');
+            video.addEventListener('pause', () => playBtn.textContent = '▶️');
+
+            // Progress bar
+            video.addEventListener('timeupdate', () => {
+                const percent = (video.currentTime / video.duration) * 100;
+                progressBar.value = percent;
+                timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+            });
+
+            progressBar.addEventListener('input', () => {
+                const time = (progressBar.value / 100) * video.duration;
+                video.currentTime = time;
+            });
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return '00:00';
+                const m = Math.floor(seconds / 60);
+                const s = Math.floor(seconds % 60);
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+
+            // Fullscreen
+            fullscreenBtn.addEventListener('click', () => {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                }
+            });
+
             // ===== СОБЫТИЯ =====
             searchBtn.addEventListener('click', () => {
                 search(searchInput.value.trim());
@@ -786,9 +866,8 @@
             showEmpty('Найдите аниме');
             updateCount(0);
 
-            // Проверяем получение токена
             getPublicToken().then(token => {
-                console.log('✅ Токен Kodik получен:', token);
+                console.log('✅ Токен Kodik получен');
             }).catch(err => {
                 console.error('❌ Ошибка получения токена:', err);
             });
