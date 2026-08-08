@@ -1,14 +1,12 @@
 // ============================================================
-// APP.JS - С KODIKWRAPPER (ПРАВИЛЬНАЯ ВЕРСИЯ)
+// APP.JS - С KODIKWRAPPER И VideoLinks
 // ============================================================
 
 // Импортируем kodikwrapper
-const { Client } = require('kodikwrapper');
+const { Client, VideoLinks } = require('kodikwrapper');
 
 // ===== СОЗДАЕМ КЛИЕНТ С ВАШИМ ТОКЕНОМ =====
-const client = new Client({
-    token: '83d3509b456cfd7448e89f81da83eb1a',
-});
+const client = Client.fromToken('83d3509b456cfd7448e89f81da83eb1a');
 
 (function() {
     'use strict';
@@ -29,11 +27,13 @@ const client = new Client({
     const sourceStatus = document.getElementById('sourceStatus');
     const reloadBtn = document.getElementById('reloadBtn');
     const debugInfo = document.getElementById('debugInfo');
+    const qualitySelect = document.getElementById('qualitySelect');
 
     let currentResults = [];
     let currentAnime = null;
     let isLoading = false;
     let currentKodikMaterial = null;
+    let currentVideoLinks = null;
 
     // ===== ЗАПРОС К ANILIST =====
     const QUERY = `
@@ -54,15 +54,14 @@ const client = new Client({
         }
     `;
 
-    // ===== ПОИСК В KODIK ПО ID (shikimori_id) =====
+    // ===== ПОИСК В KODIK ПО ID =====
     async function searchKodikById(anilistId) {
         try {
-            // AniList ID часто совпадает с Shikimori ID
             const response = await client.search({ 
                 shikimori_id: String(anilistId) 
             });
             
-            debugInfo.textContent = `Поиск по ID ${anilistId}: ${JSON.stringify(response, null, 2)}`;
+            debugInfo.textContent = `🔍 Поиск по ID ${anilistId}`;
             debugInfo.classList.add('show');
 
             if (response && response.results && response.results.length > 0) {
@@ -70,8 +69,8 @@ const client = new Client({
             }
             return null;
         } catch (error) {
-            console.error('Kodik search by ID error:', error);
-            debugInfo.textContent += `\nОшибка: ${error.message}`;
+            console.error('Kodik search error:', error);
+            debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
             return null;
         }
     }
@@ -84,7 +83,7 @@ const client = new Client({
                 limit: 1
             });
             
-            debugInfo.textContent = `Поиск по названию "${title}": ${JSON.stringify(response, null, 2)}`;
+            debugInfo.textContent = `🔍 Поиск по названию: "${title}"`;
             debugInfo.classList.add('show');
 
             if (response && response.results && response.results.length > 0) {
@@ -92,36 +91,96 @@ const client = new Client({
             }
             return null;
         } catch (error) {
-            console.error('Kodik search by title error:', error);
-            debugInfo.textContent += `\nОшибка: ${error.message}`;
+            console.error('Kodik search error:', error);
+            debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
             return null;
         }
     }
 
-    // ===== ПОЛУЧИТЬ ССЫЛКУ НА ПЛЕЕР ИЗ MATERIAL =====
-    function getKodikPlayerUrl(material, episode) {
-        if (!material) return null;
-
-        // Вариант 1:直接用 link из ответа
-        if (material.link) {
-            let url = material.link;
-            if (url.startsWith('//')) {
-                url = 'https:' + url;
+    // ===== ПОЛУЧИТЬ ВИДЕО-ССЫЛКИ ЧЕРЕЗ VideoLinks =====
+    async function getVideoLinks(material) {
+        try {
+            if (!material || !material.link) {
+                throw new Error('Нет ссылки на материал');
             }
-            return url;
+
+            debugInfo.textContent += `\n📹 Получение видео-ссылок...`;
+            
+            const links = await VideoLinks.getLinks({
+                link: material.link,
+            });
+
+            debugInfo.textContent += `\n✅ Получено ${Object.keys(links).length} качеств: ${Object.keys(links).join(', ')}`;
+            
+            return links;
+        } catch (error) {
+            console.error('VideoLinks error:', error);
+            debugInfo.textContent += `\n❌ Ошибка получения видео: ${error.message}`;
+            return null;
+        }
+    }
+
+    // ===== ВОСПРОИЗВЕДЕНИЕ ВИДЕО =====
+    function playVideo(links, quality) {
+        if (!links) {
+            setStatus('❌ Нет видео-ссылок', 'error');
+            return;
         }
 
-        // Вариант 2: Сформировать ссылку по id
-        if (material.id) {
-            return `https://kodik.info/player/${material.id}/${episode}`;
+        // Определяем доступные качества
+        const qualities = Object.keys(links).sort((a, b) => parseInt(a) - parseInt(b));
+        
+        if (qualities.length === 0) {
+            setStatus('❌ Нет доступных качеств', 'error');
+            return;
         }
 
-        // Вариант 3: По hash
-        if (material.hash) {
-            return `https://kodik.info/player/${material.hash}/${episode}`;
+        // Если качество не указано или недоступно - берем лучшее
+        let selectedQuality = quality || qualities[qualities.length - 1];
+        if (!links[selectedQuality]) {
+            selectedQuality = qualities[qualities.length - 1];
         }
 
-        return null;
+        const videoData = links[selectedQuality];
+        if (!videoData || videoData.length === 0) {
+            setStatus('❌ Нет видео для выбранного качества', 'error');
+            return;
+        }
+
+        // Берем первую ссылку
+        let videoUrl = videoData[0].src;
+        if (videoUrl.startsWith('//')) {
+            videoUrl = 'https:' + videoUrl;
+        }
+
+        debugInfo.textContent += `\n▶️ Качество: ${selectedQuality}p`;
+        debugInfo.textContent += `\n🔗 Ссылка: ${videoUrl}`;
+
+        // Обновляем select качества
+        qualitySelect.innerHTML = '';
+        qualities.forEach(q => {
+            const opt = document.createElement('option');
+            opt.value = q;
+            opt.textContent = `${q}p`;
+            if (q === selectedQuality) opt.selected = true;
+            qualitySelect.appendChild(opt);
+        });
+
+        // Загружаем видео в iframe (для HLS используем специальный плеер)
+        // Для HLS видео лучше использовать hls.js, но для простоты используем iframe
+        // или video тег с hls.js
+        const isHls = videoUrl.includes('.m3u8');
+        
+        if (isHls) {
+            // Для HLS используем специальный плеер или hls.js
+            // Пока просто загружаем в iframe
+            playerFrame.src = videoUrl;
+        } else {
+            playerFrame.src = videoUrl;
+        }
+
+        setStatus(`▶️ Воспроизведение ${selectedQuality}p`, 'success');
+        sourceStatus.textContent = `🎬 ${selectedQuality}p`;
     }
 
     // ===== ПОИСК =====
@@ -238,56 +297,46 @@ const client = new Client({
 
         setStatus(`⏳ Поиск в Kodik...`, 'info');
         sourceStatus.textContent = `🔍 Поиск...`;
-        debugInfo.textContent = `ID: ${anime.id}, Название: ${animeTitle}`;
+        debugInfo.textContent = `📺 ${animeTitle} (ID: ${anime.id})`;
         debugInfo.classList.add('show');
 
         try {
-            // Пробуем поиск по ID (shikimori_id)
+            // Ищем в Kodik
             let material = await searchKodikById(anime.id);
             
-            // Если не найдено по ID - ищем по названию
             if (!material) {
-                debugInfo.textContent += `\nПо ID не найдено, ищем по названию...`;
+                debugInfo.textContent += `\n⚠️ По ID не найдено, ищем по названию...`;
                 material = await searchKodikByTitle(animeTitle);
             }
 
             if (material) {
                 currentKodikMaterial = material;
-                debugInfo.textContent += `\nНайдено: ${material.title || material.id}`;
+                debugInfo.textContent += `\n✅ Найдено: ${material.title || material.id}`;
                 setStatus(`✅ Найдено в Kodik!`, 'success');
-                sourceStatus.textContent = `🎬 Загрузка...`;
+                sourceStatus.textContent = `📹 Получение видео...`;
 
-                const ep = parseInt(episodeSelect.value) || 1;
-                const playerUrl = getKodikPlayerUrl(material, ep);
-
-                if (playerUrl) {
-                    debugInfo.textContent += `\nПлеер: ${playerUrl}`;
-                    playerFrame.src = playerUrl;
-
-                    playerFrame.onload = function() {
-                        setStatus(`✅ Видео загружено!`, 'success');
-                        sourceStatus.textContent = '✅ Kodik работает';
-                    };
-
-                    playerFrame.onerror = function() {
-                        setStatus('❌ Ошибка плеера', 'error');
-                        sourceStatus.textContent = '❌ Ошибка';
-                    };
+                // Получаем видео-ссылки
+                const links = await getVideoLinks(material);
+                
+                if (links) {
+                    currentVideoLinks = links;
+                    // Воспроизводим в лучшем качестве
+                    playVideo(links);
                 } else {
-                    setStatus('❌ Не удалось получить ссылку', 'error');
-                    sourceStatus.textContent = '❌ Нет ссылки';
+                    setStatus('❌ Не удалось получить видео', 'error');
+                    sourceStatus.textContent = '❌ Ошибка';
                 }
             } else {
                 setStatus(`❌ Не найдено в Kodik`, 'error');
                 sourceStatus.textContent = '❌ Не найдено';
-                debugInfo.textContent += `\nНичего не найдено в Kodik`;
+                debugInfo.textContent += `\n❌ Ничего не найдено`;
             }
 
         } catch (error) {
             console.error('Open player error:', error);
             setStatus(`❌ Ошибка: ${error.message}`, 'error');
             sourceStatus.textContent = '❌ Ошибка';
-            debugInfo.textContent += `\nОшибка: ${error.message}`;
+            debugInfo.textContent += `\n❌ Ошибка: ${error.message}`;
         }
 
         setTimeout(() => {
@@ -295,30 +344,25 @@ const client = new Client({
         }, 100);
     }
 
+    // ===== СМЕНА КАЧЕСТВА =====
+    function changeQuality() {
+        if (currentVideoLinks) {
+            const quality = qualitySelect.value;
+            playVideo(currentVideoLinks, quality);
+        }
+    }
+
     // ===== СМЕНА СЕРИИ =====
     async function changeEpisode() {
-        if (currentAnime && currentKodikMaterial) {
-            const ep = parseInt(episodeSelect.value) || 1;
-            const playerUrl = getKodikPlayerUrl(currentKodikMaterial, ep);
-            if (playerUrl) {
-                playerFrame.src = playerUrl;
-                setStatus(`✅ Серия ${ep} загружена`, 'success');
-                sourceStatus.textContent = `🎬 Серия ${ep}`;
-            }
+        if (currentAnime) {
+            const title = currentAnime.title?.romaji || currentAnime.title?.english || 'Аниме';
+            await openPlayer(currentAnime, title);
         }
     }
 
     // ===== ОБНОВИТЬ =====
     async function reloadPlayer() {
-        if (currentAnime && currentKodikMaterial) {
-            const ep = parseInt(episodeSelect.value) || 1;
-            const playerUrl = getKodikPlayerUrl(currentKodikMaterial, ep);
-            if (playerUrl) {
-                playerFrame.src = playerUrl;
-                setStatus(`✅ Перезагружено`, 'success');
-                sourceStatus.textContent = '🔄 Обновлено';
-            }
-        } else if (currentAnime) {
+        if (currentAnime) {
             const title = currentAnime.title?.romaji || currentAnime.title?.english || 'Аниме';
             await openPlayer(currentAnime, title);
         }
@@ -336,6 +380,7 @@ const client = new Client({
         playerFrame.src = '';
         currentAnime = null;
         currentKodikMaterial = null;
+        currentVideoLinks = null;
         debugInfo.classList.remove('show');
     }
 
@@ -393,6 +438,7 @@ const client = new Client({
     closePlayer.addEventListener('click', closePlayerFn);
     episodeSelect.addEventListener('change', changeEpisode);
     reloadBtn.addEventListener('click', reloadPlayer);
+    qualitySelect.addEventListener('change', changeQuality);
 
     logo.addEventListener('click', (e) => {
         e.preventDefault();
