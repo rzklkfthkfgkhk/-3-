@@ -3,116 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stas Anime - VK плеер</title>
+    <title>Stas Anime</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #0a0a1a;
             color: #e8e8f0;
             font-family: Arial, sans-serif;
-            padding: 20px;
             min-height: 100vh;
         }
-        .wrap { max-width: 1100px; margin: 0 auto; }
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 20px 30px; }
 
+        /* HEADER */
         .header {
             display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
         }
         .logo {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
-            color: #7c3aed;
             cursor: pointer;
+            color: #7c3aed;
+        }
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .search {
             display: flex;
-            flex: 1;
-            gap: 8px;
-            max-width: 500px;
-        }
-        .search input {
-            flex: 1;
-            padding: 10px 18px;
+            gap: 4px;
+            background: #14142a;
             border-radius: 30px;
             border: 2px solid #2a2a4a;
-            background: #14142a;
-            color: #fff;
-            font-size: 15px;
-            outline: none;
+            padding: 2px 2px 2px 16px;
         }
-        .search input:focus { border-color: #7c3aed; }
-        .search button {
-            padding: 10px 24px;
-            border-radius: 30px;
+        .search input {
+            background: transparent;
             border: none;
-            background: #7c3aed;
             color: #fff;
-            font-size: 15px;
+            font-size: 14px;
+            padding: 8px 0;
+            outline: none;
+            width: 160px;
+        }
+        .search input:focus { width: 200px; }
+        .search button {
+            background: #7c3aed;
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             cursor: pointer;
         }
-        .search button:hover { background: #6d28d9; }
+        .auth-btns { display: flex; gap: 6px; }
+        .auth-btns button {
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            background: transparent;
+            color: #888;
+            border: 1px solid #2a2a4a !important;
+        }
+        .auth-btns button:hover { border-color: #7c3aed !important; color: #fff; }
+        #registerBtn { background: #7c3aed; color: #fff; border: none !important; }
+        #registerBtn:hover { background: #6d28d9; }
+        #logoutBtn { background: #dc2626; color: #fff; border: none !important; }
+        #logoutBtn:hover { background: #b91c1c; }
+        #profileBtn { background: #2a2a4a; color: #fff; border: none !important; }
+        #profileBtn:hover { background: #3a3a5a; }
+        .user-name { color: #7c3aed; }
 
-        .info {
-            color: #666;
-            font-size: 14px;
-            padding: 10px 0;
+        /* NAV */
+        .nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
             border-bottom: 1px solid #1a1a36;
-            margin-bottom: 16px;
+            padding-bottom: 10px;
+        }
+        .nav button {
+            background: transparent;
+            border: none;
+            color: #666;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .nav button:hover { color: #fff; background: #1a1a36; }
+        .nav button.active { color: #fff; background: #2a2a4a; border: 1px solid #7c3aed; }
+        .nav button .badge {
+            background: #7c3aed;
+            color: #fff;
+            padding: 0px 6px;
+            border-radius: 20px;
+            font-size: 10px;
+            margin-left: 2px;
         }
 
-        #results {
+        /* STATS */
+        .stats {
+            display: flex;
+            gap: 20px;
+            padding: 6px 0;
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 13px;
+            border-bottom: 1px solid #1a1a36;
+        }
+        .stats span:last-child { color: #e8e8f0; }
+
+        /* GRID */
+        #grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            min-height: 100px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 18px;
+            min-height: 200px;
+            margin-top: 10px;
         }
 
-        .result-item {
+        /* CARD */
+        .card {
             background: #14142a;
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
             cursor: pointer;
             border: 1px solid #1a1a36;
             transition: 0.3s;
+            position: relative;
         }
-        .result-item:hover {
-            transform: translateY(-4px);
-            border-color: #7c3aed;
-        }
-        .result-item .thumb {
+        .card:hover { transform: translateY(-4px); border-color: #7c3aed; }
+        .card img {
             width: 100%;
-            aspect-ratio: 16/9;
+            aspect-ratio: 2/3;
             object-fit: cover;
-            background: #0a0a1a;
+            display: block;
         }
-        .result-item .info {
-            padding: 10px 14px;
-            border-bottom: none;
-            margin: 0;
-        }
-        .result-item .info h4 {
+        .card-body { padding: 10px 12px 12px; }
+        .card-body h3 {
             font-size: 14px;
+            font-weight: 600;
             margin-bottom: 4px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .result-item .info .source {
-            font-size: 12px;
+        .card-body .meta {
+            font-size: 11px;
             color: #666;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 4px 0 6px;
         }
+        .card-body .meta span {
+            background: #1a1a36;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .card-body .meta .score { color: #fbbf24; }
+        .card-body .status-line {
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #1a1a36;
+        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+        .status-dot.green { background: #4ade80; }
+        .status-dot.blue { background: #60a5fa; }
+        .status-dot.gray { background: #555; }
+
+        .card-actions {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 5;
+        }
+        .card-actions button {
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: #888;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            backdrop-filter: blur(4px);
+        }
+        .card-actions button:hover { transform: scale(1.1); }
+        .card-actions .fav-btn.active { color: #ef4444; }
+        .card-actions .watched-btn.active { color: #60a5fa; }
 
         .empty {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 50px;
+            padding: 50px 20px;
             color: #555;
         }
         .empty i { font-size: 40px; color: #1a1a36; display: block; margin-bottom: 10px; }
@@ -121,7 +225,7 @@
         .loading {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 50px;
+            padding: 50px 20px;
         }
         .spinner {
             width: 40px;
@@ -135,12 +239,12 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading p { color: #666; margin-top: 10px; }
 
-        /* ===== ПЛЕЕР ===== */
+        /* PLAYER */
         #player {
             margin-top: 20px;
             background: #14142a;
             border-radius: 16px;
-            padding: 20px;
+            padding: 16px;
             border: 1px solid #1a1a36;
             animation: slideUp 0.3s ease;
         }
@@ -154,9 +258,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
-        .player-header h3 { font-size: 17px; }
+        .player-header h3 { font-size: 17px; font-weight: 600; }
         .player-header button {
             background: #1a1a36;
             border: none;
@@ -169,6 +273,43 @@
             transition: 0.3s;
         }
         .player-header button:hover { background: #dc2626; color: #fff; }
+
+        .player-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            padding: 6px 10px;
+            background: #0a0a1a;
+            border-radius: 10px;
+            align-items: center;
+        }
+        .player-controls select {
+            background: #1a1a36;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .player-controls .status {
+            color: #7c3aed;
+            font-size: 13px;
+            flex: 1;
+        }
+        .player-controls button {
+            background: #1a1a36;
+            border: none;
+            color: #888;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .player-controls button:hover { background: #2a2a4a; color: #fff; }
+        .player-controls .watch-btn.active { background: #60a5fa; color: #fff; }
 
         .player-wrapper {
             position: relative;
@@ -185,7 +326,6 @@
             width: 100%;
             height: 100%;
             border: 0;
-            background: #0a0a1a;
         }
 
         .player-status {
@@ -208,9 +348,142 @@
             color: #4ade80;
         }
 
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #14142a;
+            border-radius: 20px;
+            padding: 28px 32px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #2a2a4a;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal .close-modal:hover { color: #fff; }
+        .modal h2 { font-size: 22px; margin-bottom: 16px; text-align: center; }
+        .modal input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid #2a2a4a;
+            background: #0a0a1a;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+        .modal input:focus { border-color: #7c3aed; }
+        .modal button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: none;
+            background: #7c3aed;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal button:hover { background: #6d28d9; }
+        .modal .switch {
+            text-align: center;
+            margin-top: 12px;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .modal .switch:hover { color: #7c3aed; }
+
+        /* PROFILE */
+        .profile-modal .profile-info {
+            background: #0a0a1a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            border: 1px solid #1a1a36;
+        }
+        .profile-modal .profile-info p {
+            margin: 3px 0;
+            font-size: 14px;
+            color: #888;
+        }
+        .profile-modal .profile-info p span {
+            color: #e8e8f0;
+            font-weight: 600;
+        }
+        .profile-modal .profile-list {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #0a0a1a;
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid #1a1a36;
+            margin-bottom: 10px;
+        }
+        .profile-modal .profile-list .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px solid #1a1a36;
+            font-size: 13px;
+            color: #888;
+        }
+        .profile-modal .profile-list .list-item:last-child { border-bottom: none; }
+        .profile-modal .profile-list .list-item .title {
+            color: #e8e8f0;
+            cursor: pointer;
+        }
+        .profile-modal .profile-list .list-item .title:hover { color: #7c3aed; }
+        .profile-modal .profile-list .list-item .remove {
+            color: #dc2626;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a36;
+            color: #e8e8f0;
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: 1px solid #2a2a4a;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+            max-width: 90%;
+        }
+        .toast.show { display: block; }
+
         .footer {
-            margin-top: 30px;
-            padding-top: 16px;
+            margin-top: 24px;
+            padding-top: 14px;
             border-top: 1px solid #1a1a36;
             text-align: center;
             color: #444;
@@ -219,8 +492,11 @@
 
         @media (max-width: 600px) {
             .header { flex-direction: column; align-items: stretch; }
-            .search { max-width: 100%; }
-            #results { grid-template-columns: 1fr; }
+            .header-right { flex-direction: column; align-items: stretch; }
+            .search input { width: 100%; }
+            .search input:focus { width: 100%; }
+            #grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+            .nav button { font-size: 11px; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -228,31 +504,91 @@
 
 <div class="wrap">
     <header class="header">
-        <div class="logo">🎬 StasAnime</div>
-        <div class="search">
-            <input type="text" id="searchInput" placeholder="Название и серия..." value="one piece 1 серия">
-            <button id="searchBtn">🔍 Найти</button>
+        <div class="logo" id="logoLink">🎬 StasAnime</div>
+        <div class="header-right">
+            <div class="search">
+                <input type="text" id="searchInput" placeholder="Поиск аниме..." value="one piece">
+                <button id="searchBtn">🔍</button>
+            </div>
+            <div class="auth-btns" id="authBtns">
+                <button id="loginBtn">Вход</button>
+                <button id="registerBtn">Регистрация</button>
+            </div>
+            <div class="auth-btns" id="userInfo" style="display:none;">
+                <span class="user-name" id="userNameDisplay">👤 </span>
+                <button id="profileBtn">📋</button>
+                <button id="logoutBtn">🚪</button>
+            </div>
         </div>
     </header>
 
-    <div class="info">📺 Введите название аниме и номер серии (например: "Блич 1 серия")</div>
+    <nav class="nav" id="nav">
+        <button class="active" data-tab="ongoing">🔄 Онгоинги</button>
+        <button data-tab="top">🏆 Топ-100</button>
+        <button data-tab="favorites">❤️ Избранное <span class="badge" id="favCount">0</span></button>
+        <button data-tab="watched">👁️ Просмотренные <span class="badge" id="watchedCount">0</span></button>
+        <button data-tab="search" id="searchTab">🔍 Поиск</button>
+    </nav>
 
-    <div id="results"></div>
+    <div class="stats">
+        <span id="currentTabLabel">📺 Онгоинги</span>
+        <span id="count">0 аниме</span>
+    </div>
 
-    <!-- ПЛЕЕР ТОЛЬКО VK -->
+    <div id="grid"></div>
+
+    <!-- ПЛЕЕР -->
     <div id="player" class="hidden">
         <div class="player-header">
             <h3 id="playerTitle">🎬 Название</h3>
             <button id="closePlayer">✕</button>
         </div>
+        <div class="player-controls">
+            <select id="episodeSelect"></select>
+            <span class="status" id="sourceStatus">⏳ Загрузка...</span>
+            <button id="reloadBtn">🔄</button>
+            <button id="watchBtn">👁️ Просмотрено</button>
+        </div>
         <div class="player-wrapper">
             <iframe id="playerFrame" src="" allowfullscreen></iframe>
         </div>
-        <div id="playerStatus" class="player-status">💡 Выберите видео</div>
+        <div id="playerStatus" class="player-status">💡 Выберите аниме</div>
     </div>
 
-    <footer class="footer">Stas Anime · Поиск только VK</footer>
+    <footer class="footer">Stas Anime · AniList · Поиск VK/YouTube</footer>
 </div>
+
+<!-- МОДАЛКА ВХОДА -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-modal" id="closeModal">✕</button>
+        <h2 id="modalTitle">🔐 Вход</h2>
+        <input type="text" id="modalUsername" placeholder="Имя пользователя">
+        <input type="password" id="modalPassword" placeholder="Пароль">
+        <button id="modalSubmit">Войти</button>
+        <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
+    </div>
+</div>
+
+<!-- МОДАЛКА ПРОФИЛЯ -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal profile-modal">
+        <button class="close-modal" id="closeProfile">✕</button>
+        <h2>👤 Профиль</h2>
+        <div class="profile-info">
+            <p>👤 <span id="profileUsername">Имя</span></p>
+            <p>❤️ Избранное: <span id="profileFavCount">0</span></p>
+            <p>👁️ Просмотренные: <span id="profileWatchedCount">0</span></p>
+        </div>
+        <h3>❤️ Избранное</h3>
+        <div id="profileFavList" class="profile-list"></div>
+        <h3>👁️ Просмотренные</h3>
+        <div id="profileWatchedList" class="profile-list"></div>
+    </div>
+</div>
+
+<!-- ТОСТ -->
+<div class="toast" id="toast"></div>
 
 <script src="app.js"></script>
 </body>
