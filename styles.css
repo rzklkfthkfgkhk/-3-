@@ -159,6 +159,16 @@ body {
     transform: scale(1.02);
 }
 
+.btn-profile {
+    background: #2a2a4a;
+    color: #888;
+}
+
+.btn-profile:hover {
+    background: #3a3a5a;
+    color: #fff;
+}
+
 .btn-logout {
     background: #dc2626;
     color: #fff;
@@ -351,32 +361,42 @@ body {
     background: #555;
 }
 
-.fav-btn {
+.card-actions {
+    display: flex;
+    gap: 4px;
     position: absolute;
     top: 8px;
     right: 8px;
+    flex-direction: column;
+    z-index: 5;
+}
+
+.card-actions button {
     background: rgba(0, 0, 0, 0.6);
     border: none;
     color: #888;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 13px;
     transition: 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(4px);
-    z-index: 5;
 }
 
-.fav-btn:hover {
+.card-actions button:hover {
     transform: scale(1.15);
 }
 
-.fav-btn.active {
+.card-actions .fav-btn.active {
     color: #ef4444;
+}
+
+.card-actions .watched-btn.active {
+    color: #60a5fa;
 }
 
 .empty {
@@ -556,6 +576,16 @@ body {
     color: #fff;
 }
 
+.player-controls .watch-btn {
+    background: #1a1a36;
+    color: #888;
+}
+
+.player-controls .watch-btn.active {
+    background: #60a5fa;
+    color: #fff;
+}
+
 .player-wrapper {
     position: relative;
     width: 100%;
@@ -626,7 +656,7 @@ body {
     background: #14142a;
     border-radius: 20px;
     padding: 32px 36px;
-    max-width: 400px;
+    max-width: 500px;
     width: 90%;
     border: 1px solid #2a2a4a;
     max-height: 90vh;
@@ -727,6 +757,75 @@ body {
 
 .modal .switch:hover {
     color: #7c3aed;
+}
+
+/* ===== PROFILE MODAL ===== */
+.profile-modal .profile-info {
+    background: #0a0a1a;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    border: 1px solid #1a1a36;
+}
+
+.profile-modal .profile-info p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #888;
+}
+
+.profile-modal .profile-info p span {
+    color: #e8e8f0;
+    font-weight: 600;
+}
+
+.profile-modal .profile-lists h3 {
+    font-size: 16px;
+    margin: 12px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-modal .profile-list {
+    max-height: 150px;
+    overflow-y: auto;
+    background: #0a0a1a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid #1a1a36;
+}
+
+.profile-modal .profile-list .list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #1a1a36;
+    font-size: 13px;
+    color: #888;
+}
+
+.profile-modal .profile-list .list-item:last-child {
+    border-bottom: none;
+}
+
+.profile-modal .profile-list .list-item .title {
+    color: #e8e8f0;
+    cursor: pointer;
+}
+
+.profile-modal .profile-list .list-item .title:hover {
+    color: #7c3aed;
+}
+
+.profile-modal .profile-list .list-item .remove {
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.profile-modal .profile-list .list-item .remove:hover {
+    color: #ef4444;
 }
 
 /* ===== TOAST ===== */
