@@ -291,7 +291,7 @@
 
     <script>
         // ============================================================
-        // РАБОЧИЙ КОД - ПРОВЕРЕН
+        // РАБОЧИЙ КОД С KODIK ПЛЕЕРОМ
         // ============================================================
 
         (function() {
@@ -338,10 +338,19 @@
                 }
             `;
 
-            // ===== ТОЛЬКО РАБОЧИЕ ИСТОЧНИКИ (ПРОВЕРЕНО) =====
+            // ===== ИСТОЧНИКИ ПЛЕЕРА (ВКЛЮЧАЯ KODIK) =====
             function getPlayerUrls(id, episode) {
-                // Эти ссылки точно работают
+                // Kodik-style плеер (пытаемся использовать ID напрямую)
+                // Обратите внимание: для Kodik может потребоваться другой ID (например, из их базы)
+                // Но мы попробуем использовать стандартный AniList ID
+                const kodikUrl = `https://kodikapi.com/get-player?hash=${id}&episode=${episode}`;
+                
+                // Также можно попробовать прямой embed, если у Kodik есть открытый плеер
+                const kodikEmbedUrl = `https://kodik.info/player/${id}/${episode}`;
+
                 return [
+                    kodikUrl,                                    // Kodik API (может требовать токен)
+                    kodikEmbedUrl,                               // Kodik Embed (альтернатива)
                     `https://animeflix.live/embed/${id}?ep=${episode}`,
                     `https://gogoanime.llc/embed/${id}?ep=${episode}`,
                     `https://aniwatch.to/embed/${id}?ep=${episode}`,
@@ -472,7 +481,6 @@
 
             // ===== ЗАГРУЗКА ИСТОЧНИКА =====
             function loadSource(index) {
-                // Очищаем старый таймаут
                 if (loadTimeout) {
                     clearTimeout(loadTimeout);
                     loadTimeout = null;
@@ -487,8 +495,16 @@
                 currentSourceIndex = index;
                 const url = currentUrls[index];
                 
-                sourceStatus.textContent = `🔄 Источник ${index + 1}/${currentUrls.length}`;
-                setStatus(`⏳ Загрузка...`, 'info');
+                // Определяем название источника для отображения
+                let sourceName = `Источник ${index + 1}`;
+                if (url.includes('kodik')) sourceName = '🎬 Kodik';
+                else if (url.includes('animeflix')) sourceName = 'AnimeFlix';
+                else if (url.includes('gogoanime')) sourceName = 'Gogoanime';
+                else if (url.includes('aniwatch')) sourceName = 'Aniwatch';
+                else if (url.includes('zoro')) sourceName = 'Zoro';
+                
+                sourceStatus.textContent = `🔄 ${sourceName} (${index + 1}/${currentUrls.length})`;
+                setStatus(`⏳ Загрузка ${sourceName}...`, 'info');
                 
                 // Пробуем загрузить
                 playerFrame.src = url;
@@ -504,8 +520,8 @@
                         clearTimeout(loadTimeout);
                         loadTimeout = null;
                     }
-                    setStatus('✅ Видео загружено!', 'success');
-                    sourceStatus.textContent = `✅ Источник ${index + 1} работает`;
+                    setStatus(`✅ Видео загружено через ${sourceName}!`, 'success');
+                    sourceStatus.textContent = `✅ ${sourceName} работает`;
                 };
 
                 // Ошибка загрузки
