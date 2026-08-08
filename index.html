@@ -1,105 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stas Anime</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AniList-like Anime Hub</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="site-header">
+    <div class="logo">AnimeHub</div>
+    <nav class="nav">
+      <button id="btnHome" class="link-btn">Главная</button>
+      <button id="btnProfile" class="link-btn">Профиль</button>
+      <button id="btnLogout" class="link-btn" style="display:none;">Выйти</button>
+      <button id="btnTheme" class="link-btn" title="Сменить тему">☀️</button>
+    </nav>
+  </header>
 
-    <div class="wrap">
-        <!-- ШАПКА -->
-        <header class="header">
-            <div class="logo" id="logoLink">🎬 StasAnime</div>
-            <div class="header-right">
-                <div class="search">
-                    <input type="text" id="searchInput" placeholder="Поиск..." value="one piece" />
-                    <button id="searchBtn">🔍</button>
-                </div>
-                <div class="auth-btns" id="authBtns">
-                    <button id="loginBtn">Вход</button>
-                    <button id="registerBtn">Регистрация</button>
-                </div>
-                <div class="auth-btns" id="userInfo" style="display:none;">
-                    <span class="user-name" id="userNameDisplay">👤 </span>
-                    <button id="profileBtn">📋</button>
-                    <button id="logoutBtn">🚪</button>
-                </div>
-            </div>
-        </header>
+  <main class="container">
+    <!-- AUTH: регистрация/вход -->
+    <section id="authSection" class="card auth">
+      <h2>Вход или регистрация</h2>
+      <div class="auth-forms">
+        <form id="loginForm" class="form">
+          <h3>Вход</h3>
+          <label>Имя пользователя
+            <input type="text" id="loginUsername" required />
+          </label>
+          <label>Пароль
+            <input type="password" id="loginPassword" required />
+          </label>
+          <button type="submit">Войти</button>
+        </form>
 
-        <!-- НАВИГАЦИЯ -->
-        <nav class="nav" id="nav">
-            <button class="active" data-tab="ongoing">🔄 Онгоинги</button>
-            <button data-tab="top">🏆 Топ-100</button>
-            <button data-tab="favorites">❤️ Избранное <span class="badge" id="favCount">0</span></button>
-            <button data-tab="watched">👁️ Просмотренные <span class="badge" id="watchedCount">0</span></button>
-            <button data-tab="search" id="searchTab">🔍 Поиск</button>
-        </nav>
+        <form id="registerForm" class="form">
+          <h3>Регистрация</h3>
+          <label>Имя пользователя
+            <input type="text" id="regUsername" required />
+          </label>
+          <label>Пароль
+            <input type="password" id="regPassword" required />
+          </label>
+          <button type="submit">Зарегистрироваться</button>
+        </form>
+      </div>
+      <div id="authMessage" class="message" aria-live="polite"></div>
+    </section>
 
-        <div class="stats">
-            <span id="currentTabLabel">📺 Онгоинги</span>
-            <span id="count">0 аниме</span>
+    <!-- APP: основное содержимое -->
+    <section id="contentSection" class="content" style="display:none;">
+      <section class="grid-controls">
+        <div class="search-area">
+          <input id="searchInput" placeholder="Поиск аниме через AniList..." />
+          <button id="searchBtn">Поиск</button>
+        </div>
+      </section>
+
+      <section id="animeList" class="grid"></section>
+
+      <section id="playerSection" class="player" style="display:none;">
+        <h2 id="playerTitle">Просмотр: </h2>
+        <div class="player-area">
+          <iframe id="episodePlayer" width="100%" height="360" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div id="episodeList" class="episode-list"></div>
+      </section>
+
+      <section id="profileSection" class="profile" style="display:none;">
+        <div class="profile-header">
+          <div class="avatar-wrap">
+            <img id="avatarImg" src="" alt="Аватар" class="avatar" />
+            <input id="avatarInput" type="file" accept="image/*" />
+          </div>
+          <div class="profile-info">
+            <h3 id="profileUsername"></h3>
+          </div>
         </div>
 
-        <div id="grid"></div>
-
-        <!-- ПЛЕЕР -->
-        <div id="player" class="hidden">
-            <div class="player-header">
-                <h3 id="playerTitle">🎬 Название</h3>
-                <button id="closePlayer">✕</button>
-            </div>
-            <div class="player-controls">
-                <select id="episodeSelect"></select>
-                <span class="status" id="sourceStatus">⏳ Загрузка...</span>
-                <button id="reloadBtn">🔄</button>
-                <button id="watchBtn">👁️ Просмотрено</button>
-            </div>
-            <div class="player-wrapper">
-                <iframe id="playerFrame" src="" allowfullscreen></iframe>
-            </div>
-            <div id="playerStatus" class="player-status info">💡 Выберите аниме</div>
+        <div class="profile-lists">
+          <div class="list-block">
+            <h4>Избранное</h4>
+            <ul id="listFavorites"></ul>
+          </div>
+          <div class="list-block">
+            <h4>Просмотренные</h4>
+            <ul id="listWatched"></ul>
+          </div>
+          <div class="list-block">
+            <h4>Брошенные</h4>
+            <ul id="listDropped"></ul>
+          </div>
         </div>
+      </section>
+    </section>
+  </main>
 
-        <footer class="footer">Stas Anime · AniList · VK / YouTube</footer>
-    </div>
-
-    <!-- МОДАЛКА ВХОДА -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <button class="close-modal" id="closeModal">✕</button>
-            <h2 id="modalTitle">🔐 Вход</h2>
-            <input type="text" id="modalUsername" placeholder="Имя пользователя" />
-            <input type="password" id="modalPassword" placeholder="Пароль" />
-            <button id="modalSubmit">Войти</button>
-            <div class="switch" id="modalSwitch">Нет аккаунта? Зарегистрироваться</div>
-        </div>
-    </div>
-
-    <!-- СТРАНИЦА ПРОФИЛЯ (отдельная вкладка) -->
-    <div class="modal-overlay" id="profilePage">
-        <div class="modal profile-modal profile-page">
-            <button class="close-modal" id="closeProfilePage">✕</button>
-            <h2>👤 Профиль</h2>
-            <div class="profile-info">
-                <p>👤 <span id="profileUsername">Имя</span></p>
-                <p>❤️ Избранное: <span id="profileFavCount">0</span></p>
-                <p>👁️ Просмотренные: <span id="profileWatchedCount">0</span></p>
-            </div>
-            <div class="profile-tabs">
-                <button class="active" data-tab="fav">❤️ Избранное</button>
-                <button data-tab="watched">👁️ Просмотренные</button>
-            </div>
-            <div id="profileFavList" class="profile-list"></div>
-            <div id="profileWatchedList" class="profile-list" style="display:none;"></div>
-        </div>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
