@@ -35,13 +35,15 @@
     const modalSubmit = document.getElementById('modalSubmit');
     const modalSwitch = document.getElementById('modalSwitch');
 
-    const profileModal = document.getElementById('profileModal');
-    const closeProfile = document.getElementById('closeProfile');
+    // Профиль (отдельная страница)
+    const profilePage = document.getElementById('profilePage');
+    const closeProfilePage = document.getElementById('closeProfilePage');
     const profileUsername = document.getElementById('profileUsername');
     const profileFavCount = document.getElementById('profileFavCount');
     const profileWatchedCount = document.getElementById('profileWatchedCount');
     const profileFavList = document.getElementById('profileFavList');
     const profileWatchedList = document.getElementById('profileWatchedList');
+    const profileTabs = document.querySelectorAll('.profile-tabs button');
 
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
@@ -114,6 +116,7 @@
         saveUserData();
         renderCurrentView();
         updateWatchBtn();
+        if (profilePage.classList.contains('show')) updateProfile();
     }
 
     function toggleWatched(id) {
@@ -134,6 +137,7 @@
         saveUserData();
         renderCurrentView();
         updateWatchBtn();
+        if (profilePage.classList.contains('show')) updateProfile();
     }
 
     function isFavorite(id) {
@@ -228,21 +232,19 @@
         updateAuthUI();
         showToast('👋 Вы вышли');
         renderCurrentView();
+        if (profilePage.classList.contains('show')) closeProfileFn();
     }
 
-    // ===== PROFILE =====
-    function openProfile() {
-        if (!currentUser) {
-            showToast('⚠️ Войдите в аккаунт');
-            return;
-        }
+    // ===== ПРОФИЛЬ (ОТДЕЛЬНАЯ СТРАНИЦА) =====
+    function updateProfile() {
+        if (!currentUser) return;
         profileUsername.textContent = currentUser.username;
-
         const favs = getFavorites();
         const watched = getWatched();
         profileFavCount.textContent = favs.length;
         profileWatchedCount.textContent = watched.length;
 
+        // Избранное
         profileFavList.innerHTML = '';
         if (favs.length === 0) {
             profileFavList.innerHTML = '<div class="list-item" style="color:#555;">Нет избранных</div>';
@@ -256,18 +258,19 @@
                     `<span class="title" data-id="${id}">${name}</span><span class="remove" data-id="${id}">✕</span>`;
                 div.querySelector('.title').addEventListener('click', () => {
                     const a = currentResults.find(an => an.id === id);
-                    if (a) openPlayer(a, name);
-                    profileModal.classList.remove('show');
+                    if (a) { openPlayer(a, name);
+                        closeProfileFn(); }
                 });
                 div.querySelector('.remove').addEventListener('click', (e) => {
                     e.stopPropagation();
                     toggleFavorite(id);
-                    openProfile();
+                    updateProfile();
                 });
                 profileFavList.appendChild(div);
             });
         }
 
+        // Просмотренные
         profileWatchedList.innerHTML = '';
         if (watched.length === 0) {
             profileWatchedList.innerHTML = '<div class="list-item" style="color:#555;">Нет просмотренных</div>';
@@ -281,24 +284,52 @@
                     `<span class="title" data-id="${id}">${name}</span><span class="remove" data-id="${id}">✕</span>`;
                 div.querySelector('.title').addEventListener('click', () => {
                     const a = currentResults.find(an => an.id === id);
-                    if (a) openPlayer(a, name);
-                    profileModal.classList.remove('show');
+                    if (a) { openPlayer(a, name);
+                        closeProfileFn(); }
                 });
                 div.querySelector('.remove').addEventListener('click', (e) => {
                     e.stopPropagation();
                     toggleWatched(id);
-                    openProfile();
+                    updateProfile();
                 });
                 profileWatchedList.appendChild(div);
             });
         }
+    }
 
-        profileModal.classList.add('show');
+    function openProfile() {
+        if (!currentUser) {
+            showToast('⚠️ Войдите в аккаунт');
+            return;
+        }
+        updateProfile();
+        profilePage.classList.add('show');
+        // По умолчанию показываем избранное
+        document.querySelector('.profile-tabs .active')?.classList.remove('active');
+        document.querySelector('.profile-tabs button[data-tab="fav"]')?.classList.add('active');
+        profileFavList.style.display = 'block';
+        profileWatchedList.style.display = 'none';
     }
 
     function closeProfileFn() {
-        profileModal.classList.remove('show');
+        profilePage.classList.remove('show');
     }
+
+    // Вкладки в профиле
+    profileTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            profileTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const target = this.dataset.tab;
+            if (target === 'fav') {
+                profileFavList.style.display = 'block';
+                profileWatchedList.style.display = 'none';
+            } else {
+                profileFavList.style.display = 'none';
+                profileWatchedList.style.display = 'block';
+            }
+        });
+    });
 
     // ===== ANILIST QUERY =====
     const ANILIST_QUERY = `
@@ -414,6 +445,7 @@
             sourceStatus.textContent = '❌ Ошибка';
             playerStatus.textContent = '⚠️ Ошибка поиска видео';
             playerStatus.className = 'player-status error';
+            playerFrame.src = '';
         }
 
         setTimeout(() => {
@@ -773,7 +805,7 @@
     logoutBtn.addEventListener('click', logout);
     profileBtn.addEventListener('click', openProfile);
     closeModal.addEventListener('click', closeModalFn);
-    closeProfile.addEventListener('click', closeProfileFn);
+    closeProfilePage.addEventListener('click', closeProfileFn);
     modalSubmit.addEventListener('click', handleAuth);
     modalSwitch.addEventListener('click', () => {
         openModal(isLoginMode ? 'register' : 'login');
@@ -781,7 +813,7 @@
     modalOverlay.addEventListener('click', function(e) {
         if (e.target === this) closeModalFn();
     });
-    profileModal.addEventListener('click', function(e) {
+    profilePage.addEventListener('click', function(e) {
         if (e.target === this) closeProfileFn();
     });
     modalUsername.addEventListener('keypress', function(e) {
@@ -806,7 +838,7 @@
         if (e.key === 'Escape') {
             if (!player.classList.contains('hidden')) closePlayerFn();
             if (modalOverlay.classList.contains('show')) closeModalFn();
-            if (profileModal.classList.contains('show')) closeProfileFn();
+            if (profilePage.classList.contains('show')) closeProfileFn();
         }
     });
 
